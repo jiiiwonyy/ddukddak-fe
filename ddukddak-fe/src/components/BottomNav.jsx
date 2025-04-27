@@ -8,7 +8,7 @@ const BottomNavWrapper = styled.nav`
   left: 0;
   width: 100%;
   background-color: #fff;
-  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px -2px 4px 0px rgba(0, 0, 0, 0.05);
   z-index: 100;
 `;
 
