@@ -2,9 +2,20 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import tailwindcss from "@tailwindcss/vite";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url)); // __dirname처럼 사용
 // https://vite.dev/config/
+
 export default defineConfig({
+  server: {
+    https: {
+      key: fs.readFileSync(path.resolve(__dirname, "localhost+2-key.pem")),
+      cert: fs.readFileSync(path.resolve(__dirname, "localhost+2.pem")),
+    },
+  },
   plugins: [
     tailwindcss(),
     react(),
