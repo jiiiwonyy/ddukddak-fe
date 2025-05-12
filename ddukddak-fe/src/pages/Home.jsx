@@ -2,13 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import BottomNav from "../components/BottomNav";
 import { useNavigate } from "react-router-dom"; // useNavigate import
-
-const PageWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden; /* 전체 영역 스크롤 막음 */
-`;
+import PageWrapper from "../components/PageWrapper"; // PageWrapper import
 
 const FixedBackground = styled.div`
   position: absolute;

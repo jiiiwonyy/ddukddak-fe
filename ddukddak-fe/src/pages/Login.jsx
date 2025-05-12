@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import PageWrapper from "../components/PageWrapper";
 
 const KakaoButton = styled.button`
   width: 100%;
@@ -13,13 +14,8 @@ const KakaoButton = styled.button`
   border: none;
 `;
 
-const LoginContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+const LoginContainer = styled(PageWrapper)`
   align-items: center;
-  background-color: #fff;
-  width: 100%;
-  height: 100vh;
   justify-content: center;
   gap: 3rem;
   padding: 0 20px;

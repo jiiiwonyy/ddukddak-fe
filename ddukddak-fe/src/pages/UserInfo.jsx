@@ -3,14 +3,9 @@ import React from "react";
 import Header from "../components/Header";
 import MainButton from "../components/MainButton";
 import styled, { css } from "styled-components";
+import PageWrapper from "../components/PageWrapper";
 
-const UserInfoContainer = styled.div`
-  background-color: #fff;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+const UserInfoContainer = styled(PageWrapper)`
   padding-bottom: 5rem;
 `;
 
