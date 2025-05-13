@@ -57,20 +57,24 @@ const CardButton = styled.button`
 const Home = () => {
   const navigate = useNavigate(); // useNavigate 훅 사용
 
-  const handleClick = (path) => {
-    navigate(path); // path로 이동
-  };
-
   return (
     <PageWrapper>
       <FixedBackground />
       <ContentWrapper>
         <DateText>4/8(화)</DateText>
         <ButtonGroup>
-          <CardButton onClick={() => handleClick("/theme-diary")}>
+          <CardButton
+            onClick={() => {
+              navigate("/theme");
+            }}
+          >
             주제일기 작성하기
           </CardButton>
-          <CardButton onClick={() => handleClick("/daily-diary")}>
+          <CardButton
+            onClick={() => {
+              navigate("/daily");
+            }}
+          >
             일상일기 작성하기
           </CardButton>
           <CardButton>계산/언어 게임하기</CardButton>

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { BiPencil, BiCalendar, BiUser } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
 
 const BottomNavWrapper = styled.nav`
   position: fixed;
@@ -44,27 +45,34 @@ const NavItem = styled.button`
   }
 `;
 
-const BottomNav = ({ activeTab = "home", onTabChange }) => {
+const BottomNav = ({ activeTab = "home" }) => {
+  const navigate = useNavigate();
   return (
     <BottomNavWrapper>
       <BottomNavContent>
         <NavItem
           className={activeTab === "home" ? "active" : ""}
-          onClick={() => onTabChange("home")}
+          onClick={() => {
+            navigate("/");
+          }}
         >
           <BiPencil size={24} />
           <span className="body1">홈</span>
         </NavItem>
         <NavItem
           className={activeTab === "search" ? "active" : ""}
-          onClick={() => onTabChange("search")}
+          onClick={() => {
+            navigate("/");
+          }}
         >
           <BiCalendar size={24} />
           <span className="body1">나의 일기장</span>
         </NavItem>
         <NavItem
           className={activeTab === "profile" ? "active" : ""}
-          onClick={() => onTabChange("profile")}
+          onClick={() => {
+            navigate("/");
+          }}
         >
           <BiUser size={24} />
           <span className="body1">내 정보</span>
