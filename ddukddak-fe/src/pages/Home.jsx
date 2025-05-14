@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import BottomNav from "../components/BottomNav";
-import { useNavigate } from "react-router-dom"; // useNavigate import
 import PageWrapper from "../components/PageWrapper"; // PageWrapper import
+import HomeListItem from "../components/HomeListItem";
+import { BiPencil, BiJoystick } from "react-icons/bi";
 
 const FixedBackground = styled.div`
   position: absolute;
@@ -32,52 +33,51 @@ const ContentWrapper = styled.div`
 
 const DateText = styled.div`
   font-weight: bold;
-  font-size: 1rem;
   margin-bottom: 1rem;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
-`;
-
-const CardButton = styled.button`
-  flex: 1 1 calc(33.333% - 0.666rem);
-  background-color: #f5f5ff;
-  border: none;
-  border-radius: 1rem;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-width: 100px;
+  width: 100%;
 `;
 
 const Home = () => {
-  const navigate = useNavigate(); // useNavigate 훅 사용
+  const today = new Date();
+  const month = today.getMonth() + 1; // 0-based이므로 +1 필요
+  const date = today.getDate();
+  const days = ["일", "월", "화", "수", "목", "금", "토"];
+  const day = days[today.getDay()];
+
+  const formatted = `${month}/${date}(${day})`;
 
   return (
     <PageWrapper>
       <FixedBackground />
       <ContentWrapper>
-        <DateText>4/8(화)</DateText>
+        <DateText className="title3">{formatted}</DateText>
         <ButtonGroup>
-          <CardButton
-            onClick={() => {
-              navigate("/theme");
-            }}
-          >
-            주제일기 작성하기
-          </CardButton>
-          <CardButton
-            onClick={() => {
-              navigate("/daily");
-            }}
-          >
-            일상일기 작성하기
-          </CardButton>
-          <CardButton>계산/언어 게임하기</CardButton>
+          <HomeListItem
+            textTop="주제일기"
+            textBottom="작성하기"
+            backgroundColor="#E8E3FF"
+            icon={<BiPencil />}
+            to="/theme"
+          />
+          <HomeListItem
+            textTop="일상일기"
+            textBottom="작성하기"
+            backgroundColor="#DCE8FF"
+            icon={<BiPencil />}
+            to="/daily"
+          />
+          <HomeListItem
+            textTop="계산/언어"
+            textBottom="게임하기"
+            backgroundColor="#F1FBFF"
+            icon={<BiJoystick />}
+            to="/"
+          />
         </ButtonGroup>
       </ContentWrapper>
       <BottomNav />
