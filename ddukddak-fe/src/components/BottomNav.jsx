@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { BiPencil, BiCalendar, BiUser } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const BottomNavWrapper = styled.nav`
   position: fixed;
@@ -45,13 +45,15 @@ const NavItem = styled.button`
   }
 `;
 
-const BottomNav = ({ activeTab = "home" }) => {
+const BottomNav = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
   return (
     <BottomNavWrapper>
       <BottomNavContent>
         <NavItem
-          className={activeTab === "home" ? "active" : ""}
+          className={currentPath === "/" ? "active" : ""}
           onClick={() => {
             navigate("/");
           }}
@@ -60,18 +62,18 @@ const BottomNav = ({ activeTab = "home" }) => {
           <span className="body1">홈</span>
         </NavItem>
         <NavItem
-          className={activeTab === "search" ? "active" : ""}
+          className={currentPath === "diary" ? "active" : ""}
           onClick={() => {
-            navigate("/");
+            navigate("/diary");
           }}
         >
           <BiCalendar size={24} />
           <span className="body1">나의 일기장</span>
         </NavItem>
         <NavItem
-          className={activeTab === "profile" ? "active" : ""}
+          className={currentPath === "mypage" ? "active" : ""}
           onClick={() => {
-            navigate("/");
+            navigate("mypage");
           }}
         >
           <BiUser size={24} />
