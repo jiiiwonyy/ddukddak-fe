@@ -12,8 +12,16 @@ const mockDiaryData = [
   { date: "2025-05-15", type: "주제일기" },
 ];
 
-const MyDiary = () => {
-  const [selectedDate, setSelectedDate] = useState(null);
+function getTodayString() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+const Calendar = () => {
+  const [selectedDate, setSelectedDate] = useState(getTodayString()); // 오늘 날짜로 초기화
   const filteredDiaries = mockDiaryData.filter(
     (entry) => entry.date === selectedDate
   );
@@ -24,9 +32,9 @@ const MyDiary = () => {
         <CustomCalendar
           diaryEntries={mockDiaryData}
           onDateSelect={(selectedDate) => {
-            console.log("선택한 날짜:", selectedDate);
             setSelectedDate(selectedDate);
           }}
+          selectedDate={selectedDate}
         />
       </CalendarWrapper>
       <DiaryList>
@@ -41,14 +49,16 @@ const MyDiary = () => {
                 diaryType={entry.type}
               />
             ))
-          : selectedDate && <div className="body2">일기가 없습니다.</div>}
+          : selectedDate && (
+              <div className="body2">아직 오늘 일기를 작성하지 않았습니다.</div>
+            )}
       </DiaryList>
       <BottomNav />
     </PageWrapper>
   );
 };
 
-export default MyDiary;
+export default Calendar;
 
 const CalendarWrapper = styled.div`
   display: flex;
