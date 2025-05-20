@@ -62,7 +62,7 @@ const BottomNav = () => {
           <span className="body1">홈</span>
         </NavItem>
         <NavItem
-          className={currentPath === "diary" ? "active" : ""}
+          className={currentPath === "/diary" ? "active" : ""}
           onClick={() => {
             navigate("/diary");
           }}
@@ -71,9 +71,9 @@ const BottomNav = () => {
           <span className="body1">나의 일기장</span>
         </NavItem>
         <NavItem
-          className={currentPath === "mypage" ? "active" : ""}
+          className={currentPath === "/mypage" ? "active" : ""}
           onClick={() => {
-            navigate("mypage");
+            navigate("/mypage");
           }}
         >
           <BiUser size={24} />
