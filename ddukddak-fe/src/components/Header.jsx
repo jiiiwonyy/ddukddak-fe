@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const HeaderWrapper = styled.header`
@@ -10,6 +11,7 @@ const HeaderWrapper = styled.header`
   align-items: center;
   background: #fff;
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.5rem; /* 페이지 하단 여백 */
 `;
 
 const HeaderContent = styled.div`
@@ -32,16 +34,24 @@ const MenuButton = styled.button`
   align-items: center;
   position: absolute; /* 아이콘을 왼쪽에 고정 */
   left: 20px; /* 왼쪽 여백 */
+  cursor: pointer;
 `;
 
-const Header = ({ title = "", menuIcon: MenuIcon, onMenuClick }) => {
+const Header = ({ title = "", menuIcon: MenuIcon, navigateTo }) => {
+  const navigate = useNavigate();
+
+  const handleMenuClick = () => {
+    if (navigateTo) {
+      navigate(navigateTo);
+    }
+  };
   return (
     <HeaderWrapper>
       <HeaderContent>
-        <MenuButton onClick={onMenuClick}>
-          {MenuIcon && <MenuIcon size={24} />}
+        <MenuButton onClick={handleMenuClick}>
+          {MenuIcon && <MenuIcon size={32} />}
         </MenuButton>
-        <Title className="title3">{title}</Title>
+        <Title className="title2">{title}</Title>
         <div style={{ width: 0 }} /> {/* 아이콘 없는 쪽 공간 맞추기 용도 */}
       </HeaderContent>
     </HeaderWrapper>
