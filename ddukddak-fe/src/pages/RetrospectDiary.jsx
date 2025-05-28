@@ -5,6 +5,7 @@ const PageWrapper = styled.div`
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  font-family: "Gowun Dodum", serif;
 `;
 
 const FixedBackground = styled.div`
@@ -65,7 +66,7 @@ const ThemeDiary = () => {
   return (
     <PageWrapper>
       <FixedBackground />
-      <Title className="title1">회상하기</Title>
+      <Title>회상하기</Title>
       <ContentWrapper>
         <CharacterImage
           src="/assets/images/retrospectCat.svg"

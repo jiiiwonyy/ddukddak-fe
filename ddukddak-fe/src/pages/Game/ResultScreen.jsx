@@ -34,15 +34,13 @@ const ResultScreen = ({ results }) => {
             </ProblemItem>
           ))}
         </ProblemList>
-        <CompleteButtonWrapper>
-          <MainButton
-            className="body3"
-            onClick={() => {
-              navigator("/home");
-            }}
-            text="홈으로 돌아가기기"
-          />
-        </CompleteButtonWrapper>
+        <MainButton
+          className="body3"
+          onClick={() => {
+            navigator("/home");
+          }}
+          text="홈으로 돌아가기기"
+        />
       </ResultPageWrapper>
     </PageWrapper>
   );
@@ -61,12 +59,6 @@ const ResultPageWrapper = styled.div`
   padding: 20px;
 `;
 
-const CompleteButtonWrapper = styled.div`
-  position: fixed;
-  bottom: 40px;
-  width: calc(100% - 40px);
-`;
-
 const ProblemList = styled.ul`
   display: grid;
   width: 100%;
@@ -78,7 +70,6 @@ const ProblemItem = styled.li`
   width: 100%;
   padding: 1.3125rem 1.4375rem;
   row-gap: 1.0625rem;
-
   grid-template-rows: repeat(2, minmax(0, 1fr));
   grid-template-columns: repeat(4, minmax(0, 1fr));
   background-color: #f8f8f8;

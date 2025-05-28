@@ -14,11 +14,19 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const CompleteButtonWrapper = styled.div`
+  position: fixed;
+  bottom: 40px;
+  width: calc(100% - 40px);
+`;
+
 const MainButton = ({ className, text, onClick }) => {
   return (
-    <Button className={className} onClick={onClick}>
-      <div className="title3">{text}</div>
-    </Button>
+    <CompleteButtonWrapper>
+      <Button className={className} onClick={onClick}>
+        <div className="title3">{text}</div>
+      </Button>
+    </CompleteButtonWrapper>
   );
 };
 

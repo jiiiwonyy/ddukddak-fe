@@ -19,16 +19,14 @@ const SettingPage = () => {
         <InfoDiv className="body3">1974.07.14</InfoDiv>
         <div className="title3">성별</div>
         <InfoDiv className="body3">남자</InfoDiv>
-        <CompleteButtonWrapper>
-          <MainButton
-            className="body3"
-            onClick={() => {
-              localStorage.removeItem("access_token");
-              window.location.href = "/login";
-            }}
-            text="로그아웃 하기"
-          />
-        </CompleteButtonWrapper>
+        <MainButton
+          className="body3"
+          onClick={() => {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login";
+          }}
+          text="로그아웃 하기"
+        />
       </SettingPageWrapper>
     </PageWrapper>
   );
@@ -59,10 +57,4 @@ const CommonStyled = css`
 const InfoDiv = styled.div`
   ${CommonStyled}
   width: 100%;
-`;
-
-const CompleteButtonWrapper = styled.div`
-  position: fixed;
-  bottom: 40px;
-  width: calc(100% - 40px);
 `;
