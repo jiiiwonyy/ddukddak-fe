@@ -3,21 +3,19 @@ import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 import styled from "styled-components";
 import { format } from "date-fns";
 
-const CalendarHeader = ({ currentMonth, onPrevMonth, onNextMonth }) => {
-  return (
-    <Header>
-      <NavButton onClick={onPrevMonth}>
-        <BiChevronLeft />
-      </NavButton>
-      <MonthLabel className="title2">
-        {format(currentMonth, "yyyy년 M월")}
-      </MonthLabel>
-      <NavButton onClick={onNextMonth}>
-        <BiChevronRight />
-      </NavButton>
-    </Header>
-  );
-};
+const CalendarHeader = ({ currentMonth, onPrevMonth, onNextMonth }) => (
+  <Header>
+    <NavButton onClick={onPrevMonth}>
+      <BiChevronLeft />
+    </NavButton>
+    <MonthLabel className="title2">
+      {format(currentMonth, "yyyy년 M월")}
+    </MonthLabel>
+    <NavButton onClick={onNextMonth}>
+      <BiChevronRight />
+    </NavButton>
+  </Header>
+);
 
 export default CalendarHeader;
 

@@ -10,6 +10,7 @@ const mockDiaryData = [
   { date: "2025-05-14", type: "일상일기" },
   { date: "2025-05-14", type: "주제일기" },
   { date: "2025-05-15", type: "주제일기" },
+  { date: "2025-05-15", type: "회상" },
 ];
 
 function getTodayString() {
@@ -18,6 +19,11 @@ function getTodayString() {
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const dd = String(today.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatKoreanDate(dateString) {
+  const [year, month, day] = dateString.split("-");
+  return `${year}년 ${Number(month)}월 ${Number(day)}일`;
 }
 
 const Calendar = () => {
@@ -39,18 +45,22 @@ const Calendar = () => {
       </CalendarWrapper>
       <DiaryList>
         <div className="title2" style={{ marginBottom: "4px" }}>
-          {selectedDate ? `${selectedDate}의 일기` : "일자를 선택하세요"}
+          {selectedDate
+            ? `${formatKoreanDate(selectedDate)}의 일기`
+            : "일자를 선택하세요"}
         </div>
         {filteredDiaries.length > 0
           ? filteredDiaries.map((entry, idx) => (
               <DiaryListItem
                 key={idx}
                 date={entry.date}
-                diaryType={entry.type}
+                diarytype={entry.type}
               />
             ))
           : selectedDate && (
-              <div className="body2">아직 오늘 일기를 작성하지 않았습니다.</div>
+              <div style={{ marginTop: "12px" }} className="body3">
+                작성된 일기가 없어요
+              </div>
             )}
       </DiaryList>
       <BottomNav />

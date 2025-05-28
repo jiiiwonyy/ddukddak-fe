@@ -1,11 +1,21 @@
 import React from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
-const DiaryListItem = ({ diaryType, date }) => {
+const DiaryListItem = ({ diarytype, date }) => {
+  const navigate = useNavigate(); // 추가
+
+  const handleClick = () => {
+    if (diarytype === "회상") {
+      navigate("/retrospectdetail");
+    } else {
+      navigate("/diary");
+    }
+  };
   return (
-    <ItemWrapper diaryType={diaryType}>
+    <ItemWrapper diaryType={diarytype} onClick={handleClick}>
       <DateText className="body2">{date}</DateText>
-      <DiaryType className="body2">{diaryType}</DiaryType>
+      <DiaryType className="body2">{diarytype}</DiaryType>
     </ItemWrapper>
   );
 };
@@ -21,9 +31,8 @@ const ItemWrapper = styled.div`
       ? "#DCD6FF"
       : diaryType === "일상일기"
       ? "#DCE8FF"
-      : diaryType === "회상"
-      ? "#FFE7E7)"
-      : "#dcd6ff"};
+      : "#FFE7E7"};
+  cursor: pointer;
 `;
 
 const DateText = styled.div`
