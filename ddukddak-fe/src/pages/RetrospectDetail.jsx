@@ -33,7 +33,6 @@ const RetrospectDetail = () => {
 
 export default RetrospectDetail;
 
-// 💬 스타일 컴포넌트
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
