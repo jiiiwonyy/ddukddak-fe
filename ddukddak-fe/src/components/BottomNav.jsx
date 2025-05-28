@@ -53,18 +53,18 @@ const BottomNav = () => {
     <BottomNavWrapper>
       <BottomNavContent>
         <NavItem
-          className={currentPath === "/" ? "active" : ""}
+          className={currentPath === "/home" ? "active" : ""}
           onClick={() => {
-            navigate("/");
+            navigate("/home");
           }}
         >
           <BiPencil size={24} />
           <span className="body1">홈</span>
         </NavItem>
         <NavItem
-          className={currentPath === "/diary" ? "active" : ""}
+          className={currentPath === "/calendar" ? "active" : ""}
           onClick={() => {
-            navigate("/diary");
+            navigate("/calendar");
           }}
         >
           <BiCalendar size={24} />
