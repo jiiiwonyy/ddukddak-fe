@@ -1,12 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../components/Header";
 import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import MainButton from "../components/MainButton";
+import { patchDiary, getDiaryDetail } from "../api/diary"; // getDiaryDetail 추가
+import { useParams, useNavigate } from "react-router-dom";
 
 const DiaryModify = () => {
-  const [title, setTitle] = React.useState("일기 제목이 들어갑니다.");
-  const [content, setContent] = React.useState("일기 내용이 들어갑니다.");
+  const [title, setTitle] = React.useState("");
+  const [content, setContent] = React.useState("");
+  const [date, setDate] = React.useState("");
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  // 기존 일기 데이터 불러오기
+  useEffect(() => {
+    if (id) {
+      getDiaryDetail(id).then((res) => {
+        setTitle(res.data.title || "");
+        setContent(res.data.content || "");
+        setDate(res.data.diary_date || "");
+      });
+    }
+  }, [id]);
+
+  const handleSubmit = async () => {
+    try {
+      await patchDiary(id, { title, content });
+      alert("일기 수정 성공");
+      navigate(`/diary/${id}`);
+    } catch (e) {
+      console.error(e);
+      alert("일기 등록 실패");
+    }
+  };
+
   return (
     <PageWrapper>
       <Header title="일상일기 수정" />
@@ -21,12 +49,15 @@ const DiaryModify = () => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <DiaryDate className="body1">2023년 10월 1일</DiaryDate>
+        <DiaryDate className="body1">
+          {date
+            ? `${date.slice(0, 4)}년 ${Number(date.slice(5, 7))}월 ${Number(
+                date.slice(8, 10)
+              )}일`
+            : ""}
+        </DiaryDate>
         <ModifyButtonWrapper>
-          <MainButton
-            text="일상일기 수정 완료"
-            onClick={() => console.log("입력 완료")}
-          />
+          <MainButton text="일상일기 수정 완료" onClick={handleSubmit} />
         </ModifyButtonWrapper>
       </PageBody>
     </PageWrapper>

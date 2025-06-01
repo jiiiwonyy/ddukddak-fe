@@ -14,10 +14,16 @@ const Content = styled.main`
   overflow-y: auto;
 `;
 
-const PageWrapper = ({ children }) => {
+const Footer = styled.div`
+  /* 버튼이 들어갈 영역 */
+  width: 100%;
+`;
+
+const PageWrapper = ({ children, footer }) => {
   return (
     <Wrapper>
       <Content>{children}</Content>
+      {footer && <Footer>{footer}</Footer>}
     </Wrapper>
   );
 };

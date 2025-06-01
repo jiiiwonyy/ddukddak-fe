@@ -2,13 +2,20 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
-const HomeListItem = ({ textTop, textBottom, backgroundColor, icon, to }) => {
+const HomeListItem = ({
+  textTop,
+  textBottom,
+  backgroundColor,
+  icon,
+  to,
+  onClick,
+}) => {
   const navigate = useNavigate();
 
   return (
     <HomeListItemWrapper
       style={{ backgroundColor }}
-      onClick={() => navigate(to)}
+      onClick={onClick ? onClick : () => to && navigate(to)}
     >
       <CardText>
         <div className="body3">{textTop}</div>

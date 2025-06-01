@@ -1,19 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import BottomNav from "../components/BottomNav";
-import PageWrapper from "../components/PageWrapper"; // PageWrapper import
+import PageWrapper from "../components/PageWrapper";
 import HomeListItem from "../components/HomeListItem";
 import { BiPencil, BiJoystick } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
+import { getStats } from "../api/game";
+import { startDailyDiary } from "../api/diary";
+// import { getMonthlyDiaries } from "../api/diary";
+import CustomAlert from "../components/AlertModal";
 
 const FixedBackground = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%; /* 100vh로 화면 크기에 맞춰 배경 조정 */
+  height: 100%;
   background: url("/assets/images/bg.svg") no-repeat center center;
-  background-size: cover; /* 배경 이미지 비율에 맞춰 크기 조정 */
-  background-attachment: fixed; /* 스크롤 시 배경 이미지도 같이 이동 */
+  background-size: cover;
+  background-attachment: fixed;
   z-index: 0;
 `;
 
@@ -24,11 +29,11 @@ const ContentWrapper = styled.div`
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   padding: 1.5rem 1rem;
-  height: calc(100vh - 60vh); /* 나머지 영역 */
-  overflow-y: auto; /* 스크롤 활성화 */
+  height: calc(100vh - 60vh);
+  overflow-y: auto;
   bottom: 0;
   width: 100%;
-  overflow-x: hidden; /* 가로 스크롤 막음 */
+  overflow-x: hidden;
 `;
 
 const DateText = styled.div`
@@ -42,14 +47,76 @@ const ButtonGroup = styled.div`
   width: 100%;
 `;
 
-const Home = () => {
+function getTodayInfo() {
   const today = new Date();
-  const month = today.getMonth() + 1; // 0-based이므로 +1 필요
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
   const date = today.getDate();
   const days = ["일", "월", "화", "수", "목", "금", "토"];
   const day = days[today.getDay()];
-
+  const todayStr = `${year}-${String(month).padStart(2, "0")}-${String(
+    date
+  ).padStart(2, "0")}`;
   const formatted = `${month}/${date}(${day})`;
+  return { year, month, date, day, todayStr, formatted };
+}
+
+const Home = () => {
+  const navigate = useNavigate();
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("access_token", token);
+      window.history.replaceState({}, document.title, "/home");
+    }
+  }, []);
+
+  // const checkTodayDiaryExists = async (category) => {
+  //   const { year, month, todayStr } = getTodayInfo();
+  //   const res = await getMonthlyDiaries(year, month);
+  //   const diaries = res.data[todayStr] || [];
+  //   return diaries.some((entry) => entry.category === category);
+  // };
+
+  const handleGameClick = async () => {
+    try {
+      const { year, month } = getTodayInfo();
+      await getStats(year, month);
+      setAlertMsg("오늘은 이미 게임을 했어요!");
+      setAlertOpen(true);
+    } catch (e) {
+      console.error(e);
+      navigate("/game");
+    }
+  };
+
+  const handleDiaryClick = async (category, path) => {
+    try {
+      if (category === "daily") {
+        try {
+          await startDailyDiary();
+          navigate(path);
+        } catch (e) {
+          console.error("일상일기 시작 실패:", e);
+          // 502 에러나 CORS 에러가 발생해도 페이지로 이동
+          navigate(path);
+        }
+      } else {
+        navigate(path);
+      }
+    } catch (e) {
+      console.error(e);
+      setAlertMsg("일기 작성 상태 확인에 실패했습니다.");
+      setAlertOpen(true);
+    }
+  };
+
+  const { formatted } = getTodayInfo();
 
   return (
     <PageWrapper>
@@ -62,21 +129,26 @@ const Home = () => {
             textBottom="작성하기"
             backgroundColor="#E8E3FF"
             icon={<BiPencil />}
-            to="/theme"
+            onClick={() => handleDiaryClick("topic", "/theme")}
           />
           <HomeListItem
             textTop="일상일기"
             textBottom="작성하기"
             backgroundColor="#DCE8FF"
             icon={<BiPencil />}
-            to="/daily"
+            onClick={() => handleDiaryClick("daily", "/daily")}
           />
           <HomeListItem
             textTop="계산/언어"
             textBottom="게임하기"
             backgroundColor="#F1FBFF"
             icon={<BiJoystick />}
-            to="/"
+            onClick={handleGameClick}
+          />
+          <CustomAlert
+            open={alertOpen}
+            message={alertMsg}
+            onClose={() => setAlertOpen(false)}
           />
         </ButtonGroup>
       </ContentWrapper>

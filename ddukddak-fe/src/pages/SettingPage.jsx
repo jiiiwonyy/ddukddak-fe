@@ -3,8 +3,34 @@ import { BiChevronLeft, BiLogOut } from "react-icons/bi";
 import PageWrapper from "../components/PageWrapper";
 import styled, { css } from "styled-components";
 import MainButton from "../components/MainButton";
+import { useEffect, useState } from "react";
+import { getUserProfile } from "../api/user";
 
 const SettingPage = () => {
+  const [userName, setUserName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [gender, setGender] = useState("");
+
+  useEffect(() => {
+    getUserProfile()
+      .then((res) => {
+        setUserName(res.data.name || "");
+        setBirthDate(res.data.birth_date || "");
+        setGender(
+          res.data.gender === "male"
+            ? "남자"
+            : res.data.gender === "female"
+            ? "여자"
+            : ""
+        );
+      })
+      .catch(() => {
+        setUserName("");
+        setBirthDate("");
+        setGender("");
+      });
+  }, []);
+
   return (
     <PageWrapper>
       <Header
@@ -14,18 +40,18 @@ const SettingPage = () => {
       />
       <SettingPageWrapper>
         <div className="title3">이름</div>
-        <InfoDiv className="body3">홍길동</InfoDiv>
+        <InfoDiv className="body3">{userName}</InfoDiv>
         <div className="title3">생년월일</div>
-        <InfoDiv className="body3">1974.07.14</InfoDiv>
+        <InfoDiv className="body3">{birthDate}</InfoDiv>
         <div className="title3">성별</div>
-        <InfoDiv className="body3">남자</InfoDiv>
+        <InfoDiv className="body3">{gender}</InfoDiv>
         <MainButton
-          className="body3"
           onClick={() => {
             localStorage.removeItem("access_token");
             window.location.href = "/login";
           }}
           text="로그아웃 하기"
+          fixed
         />
       </SettingPageWrapper>
     </PageWrapper>

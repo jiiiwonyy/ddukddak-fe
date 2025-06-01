@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-import tailwindcss from "@tailwindcss/vite";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -11,13 +10,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url)); // __dirname처�
 
 export default defineConfig({
   server: {
+    host: true,
+    port: 5174,
+    strictPort: true, // 포트가 사용 중이면 서버 시작 실패
     https: {
       key: fs.readFileSync(path.resolve(__dirname, "localhost+2-key.pem")),
       cert: fs.readFileSync(path.resolve(__dirname, "localhost+2.pem")),
     },
+    hmr: false,
   },
   plugins: [
-    tailwindcss(),
     react(),
     VitePWA({
       registerType: "autoUpdate",

@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,38 +7,26 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-
-const data = [
-  {
-    name: "시간 지남력",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "공간 지남력",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "기억력",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "숫자/언어 게임",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-];
+import { getStats } from "../api/game";
 
 export default function LineCharts() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    getStats(2025, 5).then((res) => {
+      setData(convertStatsToChartData(res.data));
+    });
+  }, []);
+
+  function convertStatsToChartData(stats) {
+    return Object.values(stats.categories).map((cat) => ({
+      name: cat.name,
+      responseTime: cat.avg_response_time,
+    }));
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%" className="body1">
       <LineChart data={data}>
@@ -49,12 +37,11 @@ export default function LineCharts() {
         <Legend />
         <Line
           type="monotone"
-          dataKey="pv"
-          name="지난 달"
-          stroke="#BBBBBE"
+          dataKey="responseTime"
+          name="평균 반응시간(ms)"
+          stroke="#A0D2F5"
           activeDot={{ r: 8 }}
         />
-        <Line type="monotone" name="이번달" dataKey="uv" stroke="#A0D2F5" />
       </LineChart>
     </ResponsiveContainer>
   );

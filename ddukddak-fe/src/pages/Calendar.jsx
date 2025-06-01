@@ -1,17 +1,11 @@
 import React from "react";
 import BottomNav from "../components/BottomNav";
 import CustomCalendar from "../components/CustomCalendar";
-import PageWrapper from "../components/PageWrapper"; // PageWrapper import
+import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import DiaryListItem from "../components/DiaryListItem";
-import { useState } from "react";
-
-const mockDiaryData = [
-  { date: "2025-05-14", type: "일상일기" },
-  { date: "2025-05-14", type: "주제일기" },
-  { date: "2025-05-15", type: "주제일기" },
-  { date: "2025-05-15", type: "회상" },
-];
+import { useState, useEffect } from "react";
+import { getMonthlyDiaries } from "../api/diary";
 
 function getTodayString() {
   const today = new Date();
@@ -28,18 +22,37 @@ function formatKoreanDate(dateString) {
 
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(getTodayString()); // 오늘 날짜로 초기화
-  const filteredDiaries = mockDiaryData.filter(
-    (entry) => entry.date === selectedDate
-  );
+  const [monthlyDiaries, setMonthlyDiaries] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const year = Number(selectedDate.slice(0, 4));
+    const month = Number(selectedDate.slice(5, 7));
+    setLoading(true);
+    getMonthlyDiaries(year, month)
+      .then((res) => {
+        setMonthlyDiaries(res.data || {});
+      })
+      .catch((error) => {
+        console.error("API 에러:", error);
+        setMonthlyDiaries({});
+      })
+      .finally(() => setLoading(false));
+  }, [selectedDate]);
+
+  const filteredDiaries = monthlyDiaries[selectedDate] || [];
 
   return (
     <PageWrapper>
       <CalendarWrapper>
         <CustomCalendar
-          diaryEntries={mockDiaryData}
-          onDateSelect={(selectedDate) => {
-            setSelectedDate(selectedDate);
-          }}
+          diaryEntries={Object.entries(monthlyDiaries).flatMap(([, diaries]) =>
+            diaries.map((entry) => ({
+              date: entry.diary_date,
+              type: entry.category,
+            }))
+          )}
+          onDateSelect={setSelectedDate}
           selectedDate={selectedDate}
         />
       </CalendarWrapper>
@@ -49,19 +62,25 @@ const Calendar = () => {
             ? `${formatKoreanDate(selectedDate)}의 일기`
             : "일자를 선택하세요"}
         </div>
-        {filteredDiaries.length > 0
-          ? filteredDiaries.map((entry, idx) => (
-              <DiaryListItem
-                key={idx}
-                date={entry.date}
-                diarytype={entry.type}
-              />
-            ))
-          : selectedDate && (
-              <div style={{ marginTop: "12px" }} className="body3">
-                작성된 일기가 없어요
-              </div>
-            )}
+        {loading ? (
+          <div style={{ marginTop: "12px" }} className="body3">
+            불러오는 중...
+          </div>
+        ) : filteredDiaries.length > 0 ? (
+          filteredDiaries.map((entry) => (
+            <DiaryListItem
+              key={entry.id}
+              id={entry.id}
+              date={entry.diary_date}
+              diarytype={entry.category}
+              title={entry.title}
+            />
+          ))
+        ) : (
+          <div style={{ marginTop: "12px" }} className="body3">
+            작성된 일기가 없어요
+          </div>
+        )}
       </DiaryList>
       <BottomNav />
     </PageWrapper>

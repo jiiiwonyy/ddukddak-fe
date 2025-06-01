@@ -12,9 +12,5 @@ const Dot = styled.div`
   margin: 2px auto 0;
   border-radius: 50%;
   background-color: ${({ type }) =>
-    type === "일상일기"
-      ? "#DCE8FF"
-      : type === "주제일기"
-      ? "#DCD6FF"
-      : "#FFE7E7"};
+    type === "daily" ? "#DCE8FF" : type === "topic" ? "#DCD6FF" : "#FFE7E7"};
 `;

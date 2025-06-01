@@ -4,6 +4,7 @@ import PageWrapper from "../components/PageWrapper";
 import Header from "../components/Header";
 import { BiChevronLeft } from "react-icons/bi";
 import MainButton from "../components/MainButton";
+import { useNavigate } from "react-router-dom";
 
 const messages = [
   { id: 1, sender: "bot", text: "안녕하세요! 무엇을 도와드릴까요?" },
@@ -12,6 +13,8 @@ const messages = [
 ];
 
 const RetrospectDetail = () => {
+  const navigate = useNavigate();
+
   return (
     <PageWrapper>
       <Header
@@ -21,11 +24,17 @@ const RetrospectDetail = () => {
       />
       <ChatContainer>
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} isUser={msg.sender === "user"}>
+          <MessageBubble key={msg.id} $isUser={msg.sender === "user"}>
             {msg.text}
           </MessageBubble>
         ))}
-        <MainButton text="홈으로 돌아가기" />
+        <MainButton
+          text="홈으로 돌아가기"
+          onClick={() => {
+            navigate("/home");
+          }}
+          fixed
+        />
       </ChatContainer>
     </PageWrapper>
   );
@@ -48,8 +57,8 @@ const MessageBubble = styled.div`
   margin: 8px 0;
   padding: 12px 16px;
   border-radius: 20px;
-  background-color: ${(props) => (props.isUser ? "#D0E1FF" : "#ECECEC")};
-  align-self: ${(props) => (props.isUser ? "flex-end" : "flex-start")};
+  background-color: ${({ $isUser }) => ($isUser ? "#D0E1FF" : "#ECECEC")};
+  align-self: ${({ $isUser }) => ($isUser ? "flex-end" : "flex-start")};
   color: #333;
   font-size: 16px;
   line-height: 1.4;

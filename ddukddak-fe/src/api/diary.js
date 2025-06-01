@@ -1,0 +1,20 @@
+import axios from "../api/axiosInstance";
+import { dailyInstance } from "../api/axiosInstance";
+
+export const getMonthlyDiaries = (year, month) => {
+  return axios.get(`/diaries/monthly`, {
+    params: { year, month },
+  });
+};
+
+export const getDiaryDetail = (id) => {
+  return axios.get(`/diaries/${id}/`);
+};
+
+export const patchDiary = (id, data) => {
+  return axios.patch(`/diaries/${id}/`, data);
+};
+
+export const startDailyDiary = () => {
+  return dailyInstance.get(`/start`);
+};

@@ -20,13 +20,17 @@ const CompleteButtonWrapper = styled.div`
   width: calc(100% - 40px);
 `;
 
-const MainButton = ({ className, text, onClick }) => {
-  return (
-    <CompleteButtonWrapper>
-      <Button className={className} onClick={onClick}>
-        <div className="title3">{text}</div>
-      </Button>
-    </CompleteButtonWrapper>
+const MainButton = ({ className, text, onClick, fixed }) => {
+  const buttonElement = (
+    <Button className={className} onClick={onClick}>
+      <div className="title3">{text}</div>
+    </Button>
+  );
+
+  return fixed ? (
+    <CompleteButtonWrapper>{buttonElement}</CompleteButtonWrapper>
+  ) : (
+    buttonElement
   );
 };
 

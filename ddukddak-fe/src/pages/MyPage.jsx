@@ -7,13 +7,28 @@ import BarCharts from "../components/BarCharts";
 import LineCharts from "../components/LineCharts";
 import { BiSolidCog } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
+import { getUserProfile } from "../api/user";
+import { useEffect, useState } from "react";
 
 const MyPage = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    getUserProfile()
+      .then((res) => {
+        // 백엔드 응답 구조에 따라 아래를 수정하세요
+        setUserName(res.data.name || "");
+      })
+      .catch(() => {
+        setUserName("");
+      });
+  }, []);
+
   return (
     <>
       <PropileBox>
-        <PropileName className="title2">사용자 이름</PropileName>
+        <PropileName className="title2">{userName} 님 안녕하세요🖐🏻</PropileName>
         <SettingBox
           className="body3"
           onClick={() => {
