@@ -24,21 +24,25 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(getTodayString()); // 오늘 날짜로 초기화
   const [monthlyDiaries, setMonthlyDiaries] = useState({});
   const [loading, setLoading] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  });
 
   useEffect(() => {
-    const year = Number(selectedDate.slice(0, 4));
-    const month = Number(selectedDate.slice(5, 7));
+    const [year, month] = currentMonth.split("-");
     setLoading(true);
-    getMonthlyDiaries(year, month)
-      .then((res) => {
-        setMonthlyDiaries(res.data || {});
-      })
+    getMonthlyDiaries(Number(year), Number(month))
+      .then((res) => setMonthlyDiaries(res.data || {}))
       .catch((error) => {
         console.error("API 에러:", error);
         setMonthlyDiaries({});
       })
       .finally(() => setLoading(false));
-  }, [selectedDate]);
+  }, [currentMonth]);
 
   const filteredDiaries = monthlyDiaries[selectedDate] || [];
 
@@ -46,6 +50,8 @@ const Calendar = () => {
     <PageWrapper>
       <CalendarWrapper>
         <CustomCalendar
+          currentMonth={currentMonth}
+          setCurrentMonth={setCurrentMonth}
           diaryEntries={Object.entries(monthlyDiaries).flatMap(([, diaries]) =>
             diaries.map((entry) => ({
               date: entry.diary_date,

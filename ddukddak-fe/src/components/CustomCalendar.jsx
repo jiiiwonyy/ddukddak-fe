@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   startOfMonth,
@@ -8,14 +8,42 @@ import {
   addDays,
   isSameMonth,
   isSameDay,
+  addMonths,
+  subMonths,
+  format,
 } from "date-fns";
 import CalendarHeader from "./Calendar/CalendarHeader";
-import { format, addMonths, subMonths } from "date-fns";
 import DayCell from "./Calendar/DayCell";
 
-const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+const CustomCalendar = ({
+  currentMonth, // "YYYY-MM" (문자열)
+  setCurrentMonth, // 함수 (상위에서 내려줌)
+  onDateSelect,
+  diaryEntries = [],
+  selectedDate,
+}) => {
   const today = new Date();
+
+  // 문자열 currentMonth("YYYY-MM") → Date 객체로 변환
+  const monthDate = new Date(
+    Number(currentMonth.split("-")[0]),
+    Number(currentMonth.split("-")[1]) - 1,
+    1
+  );
+
+  const handlePrevMonth = () => {
+    const prev = subMonths(monthDate, 1);
+    const yyyy = prev.getFullYear();
+    const mm = String(prev.getMonth() + 1).padStart(2, "0");
+    setCurrentMonth(`${yyyy}-${mm}`);
+  };
+
+  const handleNextMonth = () => {
+    const next = addMonths(monthDate, 1);
+    const yyyy = next.getFullYear();
+    const mm = String(next.getMonth() + 1).padStart(2, "0");
+    setCurrentMonth(`${yyyy}-${mm}`);
+  };
 
   const handleDateClick = (day) => {
     const selected = format(day, "yyyy-MM-dd");
@@ -28,17 +56,9 @@ const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
       .map((entry) => entry.type);
   };
 
-  const handlePrevMonth = () => {
-    setCurrentMonth(subMonths(currentMonth, 1));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentMonth(addMonths(currentMonth, 1));
-  };
-
   const renderDays = () => {
-    const startDate = startOfWeek(startOfMonth(currentMonth));
-    const endDate = endOfWeek(endOfMonth(currentMonth));
+    const startDate = startOfWeek(startOfMonth(monthDate));
+    const endDate = endOfWeek(endOfMonth(monthDate));
 
     const weeks = [];
     let day = startDate;
@@ -47,7 +67,7 @@ const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
       const days = [];
 
       for (let i = 0; i < 7; i++) {
-        const isCurrentMonth = isSameMonth(day, currentMonth);
+        const isCurrentMonth = isSameMonth(day, monthDate);
         const isToday = isSameDay(day, today);
         const diaryTypes = getDiaryTypesForDate(day);
 
@@ -59,6 +79,7 @@ const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
             isToday={isToday}
             onClick={handleDateClick}
             diaryTypes={diaryTypes}
+            isSelected={selectedDate === format(day, "yyyy-MM-dd")}
           />
         );
 
@@ -74,7 +95,7 @@ const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
   return (
     <CalendarWrapper>
       <CalendarHeader
-        currentMonth={currentMonth}
+        currentMonth={monthDate} // Date 객체로 넘김
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
       />
@@ -87,8 +108,6 @@ const CustomCalendar = ({ onDateSelect, diaryEntries = [] }) => {
     </CalendarWrapper>
   );
 };
-
-export default CustomCalendar;
 
 const CalendarWrapper = styled.div`
   width: 100%;
@@ -117,3 +136,5 @@ const WeekRow = styled.div`
   grid-template-columns: repeat(7, 1fr);
   ovrerflow: hidden;
 `;
+
+export default CustomCalendar;
