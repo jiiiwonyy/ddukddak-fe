@@ -9,3 +9,7 @@ export const getStats = (year, month) => {
     params: { year, month },
   });
 };
+
+export const getGameDate = (date) => {
+  return axios.get(`/language-calc-stats/?game_date=${date}`);
+};

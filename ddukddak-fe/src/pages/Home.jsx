@@ -5,47 +5,10 @@ import PageWrapper from "../components/PageWrapper";
 import HomeListItem from "../components/HomeListItem";
 import { BiPencil, BiJoystick } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { getStats } from "../api/game";
 import { startDailyDiary } from "../api/diary";
 // import { getMonthlyDiaries } from "../api/diary";
 import CustomAlert from "../components/AlertModal";
-
-const FixedBackground = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url("/assets/images/bg.svg") no-repeat center center;
-  background-size: cover;
-  background-attachment: fixed;
-  z-index: 0;
-`;
-
-const ContentWrapper = styled.div`
-  position: absolute;
-  z-index: 1;
-  background: white;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  padding: 1.5rem 1rem;
-  height: calc(100vh - 60vh);
-  overflow-y: auto;
-  bottom: 0;
-  width: 100%;
-  overflow-x: hidden;
-`;
-
-const DateText = styled.div`
-  font-weight: bold;
-  margin-bottom: 1rem;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-`;
+import { getGameDate } from "../api/game";
 
 function getTodayInfo() {
   const today = new Date();
@@ -84,14 +47,21 @@ const Home = () => {
   // };
 
   const handleGameClick = async () => {
+    const todayStr = getTodayInfo().todayStr;
+    const res = await getGameDate(todayStr);
+
     try {
-      const { year, month } = getTodayInfo();
-      await getStats(year, month);
-      setAlertMsg("오늘은 이미 게임을 했어요!");
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setAlertMsg("오늘은 이미 게임을 했어요!");
+        setAlertOpen(true);
+      } else {
+        // 빈 리스트 (게임 기록 없음)
+        navigate("/game");
+      }
+    } catch (error) {
+      setAlertMsg("게임 기록 확인에 실패했습니다.");
       setAlertOpen(true);
-    } catch (e) {
-      console.error(e);
-      navigate("/game");
+      console.error(error);
     }
   };
 
@@ -101,6 +71,7 @@ const Home = () => {
         try {
           await startDailyDiary();
           navigate(path);
+          sessionStorage.setItem("playFirstTTS", "true");
         } catch (e) {
           console.error("일상일기 시작 실패:", e);
           // 502 에러나 CORS 에러가 발생해도 페이지로 이동
@@ -108,6 +79,7 @@ const Home = () => {
         }
       } else {
         navigate(path);
+        sessionStorage.setItem("playFirstTTS", "true");
       }
     } catch (e) {
       console.error(e);
@@ -117,7 +89,6 @@ const Home = () => {
   };
 
   const { formatted } = getTodayInfo();
-
   return (
     <PageWrapper>
       <FixedBackground />
@@ -158,3 +129,40 @@ const Home = () => {
 };
 
 export default Home;
+
+const FixedBackground = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/assets/images/bg.svg") no-repeat center center;
+  background-size: cover;
+  background-attachment: fixed;
+  z-index: 0;
+`;
+
+const ContentWrapper = styled.div`
+  position: absolute;
+  z-index: 1;
+  background: white;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  padding: 1.5rem 1rem;
+  height: calc(100vh - 60vh);
+  overflow-y: auto;
+  bottom: 0;
+  width: 100%;
+  overflow-x: hidden;
+`;
+
+const DateText = styled.div`
+  font-weight: bold;
+  margin-bottom: 1rem;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+`;
