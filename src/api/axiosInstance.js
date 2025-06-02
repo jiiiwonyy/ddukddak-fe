@@ -15,7 +15,7 @@ export const dailyInstance = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: false, // credentials 제거
-  timeout: 10000,
+  timeout: 15000,
 });
 
 // ✅ 요청 전에 토큰 자동 추가

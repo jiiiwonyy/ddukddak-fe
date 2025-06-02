@@ -18,3 +18,7 @@ export const patchDiary = (id, data) => {
 export const startDailyDiary = () => {
   return dailyInstance.get(`/start`);
 };
+
+export const startThemeDiary = () => {
+  return dailyInstance.get(`/theme/start`);
+};
