@@ -32,7 +32,7 @@ const Home = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get("access_token");
+    const token = params.get("token");
     if (token) {
       localStorage.setItem("access_token", token);
       window.history.replaceState({}, document.title, "/home");
@@ -71,6 +71,7 @@ const Home = () => {
         try {
           await startDailyDiary();
           navigate(path);
+          sessionStorage.setItem("playFirstTTS", "true");
         } catch (e) {
           console.error("일상일기 시작 실패:", e);
           // 502 에러나 CORS 에러가 발생해도 페이지로 이동
@@ -78,6 +79,7 @@ const Home = () => {
         }
       } else {
         navigate(path);
+        sessionStorage.setItem("playFirstTTS", "true");
       }
     } catch (e) {
       console.error(e);

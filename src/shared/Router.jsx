@@ -40,6 +40,8 @@ const Router = () => {
         <Route path="retrospectdetail/:id" element={<RetrospectDetail />} />
         <Route path="setting" element={<SettingPage />} />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

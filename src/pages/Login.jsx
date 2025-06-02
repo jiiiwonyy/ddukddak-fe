@@ -12,7 +12,7 @@ const Login = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const token = params.get("access_token");
+    const token = params.get("token");
     const profile = params.get("is_profile_completed");
 
     if (token) {
