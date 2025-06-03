@@ -14,9 +14,12 @@ const Login = () => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     const profile = params.get("is_profile_completed");
+    const userId = params.get("user_id");
 
     if (token) {
       localStorage.setItem("access_token", token);
+      localStorage.setItem("user_id", userId); // AI 서버 인증용
+
       dispatch(login());
       if (profile === "false") {
         navigate("/userinfo", { replace: true });
