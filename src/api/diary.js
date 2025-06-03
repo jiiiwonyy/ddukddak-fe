@@ -1,5 +1,5 @@
 import axios from "../api/axiosInstance";
-import { dailyInstance } from "../api/axiosInstance";
+import dailyInstance from "../api/dailyInstance";
 
 export const getMonthlyDiaries = (year, month) => {
   return axios.get(`/diaries/monthly`, {

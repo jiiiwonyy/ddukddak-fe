@@ -1,20 +1,23 @@
+import dailyInstance from "./dailyInstance";
+
 export async function sttRequest(audioBlob) {
-  const formData = new FormData();
-  formData.append("file", audioBlob, "audio.webm");
+  try {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "audio.webm");
 
-  const response = await fetch("https://nabiya.site/stt", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await dailyInstance.post("/stt", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || `STT 서버 오류 (${response.status})`);
+    const data = response.data;
+    if (!data.transcript) {
+      throw new Error("음성 인식 결과가 없습니다.");
+    }
+    return data.transcript;
+  } catch (error) {
+    console.error("STT 오류:", error);
+    throw error;
   }
-
-  const data = await response.json();
-  if (!data.transcript) {
-    throw new Error("음성 인식 결과가 없습니다.");
-  }
-  return data.transcript;
 }

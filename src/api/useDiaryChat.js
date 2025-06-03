@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT"; // Assuming this is the correct import path
+import dailyInstance from "./dailyInstance";
 
 export const useDiaryChat = (startFunction) => {
   const { audioRef, playTTS } = useTTS();
@@ -10,8 +11,6 @@ export const useDiaryChat = (startFunction) => {
   const [isLoading, setIsLoading] = useState(true);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     return () => {
@@ -119,11 +118,10 @@ export const useDiaryChat = (startFunction) => {
   const sendMessage = async (message) => {
     if (!message || !message.trim()) return;
     try {
-      const response = await fetch("https://nabiya.site/ask", {
+      const response = await dailyInstance.post("/ask", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ message }),
         mode: "cors",

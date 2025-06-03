@@ -48,6 +48,7 @@ const SettingPage = () => {
         <MainButton
           onClick={() => {
             localStorage.removeItem("access_token");
+            localStorage.removeItem("user_id");
             window.location.href = "/login";
           }}
           text="로그아웃 하기"

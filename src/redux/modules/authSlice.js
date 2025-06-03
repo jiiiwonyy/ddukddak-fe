@@ -14,6 +14,7 @@ const authSlice = createSlice({
     logout(state) {
       state.isLoggedIn = false;
       localStorage.removeItem("access_token");
+      localStorage.removeItem("user_id"); // AI 서버 인증용
     },
   },
 });

@@ -8,16 +8,6 @@ const instance = axios.create({
   timeout: 5000, // (선택) 요청 제한 시간 설정
 });
 
-// 일상일기용 인스턴스
-export const dailyInstance = axios.create({
-  baseURL: "https://nabiya.site", // 일상일기 서버 주소
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: false, // credentials 제거
-  timeout: 15000,
-});
-
 // ✅ 요청 전에 토큰 자동 추가
 instance.interceptors.request.use(
   (config) => {
@@ -42,15 +32,6 @@ instance.interceptors.response.use(
       }
       return Promise.reject(error.response.data);
     }
-    return Promise.reject(error);
-  }
-);
-
-// dailyInstance용 에러 핸들링
-dailyInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("Daily Diary API Error:", error);
     return Promise.reject(error);
   }
 );

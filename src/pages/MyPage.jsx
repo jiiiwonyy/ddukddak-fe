@@ -2,9 +2,9 @@ import React from "react";
 import PageWrapper from "../components/PageWrapper";
 import BottomNav from "../components/BottomNav";
 import styled from "styled-components";
-import { LineChart, Line } from "recharts";
+// import { LineChart, Line } from "recharts";
 import BarCharts from "../components/BarCharts";
-import LineCharts from "../components/LineCharts";
+// import LineCharts from "../components/LineCharts";
 import { BiSolidCog } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from "../api/user";
@@ -43,10 +43,6 @@ const MyPage = () => {
         <MyPageTitle className="title3">회상 정확도</MyPageTitle>
         <GraphBox>
           <BarCharts />
-        </GraphBox>
-        <MyPageTitle className="title3">응답 지연 시간</MyPageTitle>
-        <GraphBox>
-          <LineCharts />
         </GraphBox>
       </MyPageWrapper>
       <BottomNav />

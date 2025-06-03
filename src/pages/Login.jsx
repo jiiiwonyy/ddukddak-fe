@@ -4,6 +4,10 @@ import PageWrapper from "../components/PageWrapper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login, logout } from "../redux/modules/authSlice";
+import { setToken, getToken, setUserId, getUserId } from "../api/auth"; // AI 서버 인증용
+// import axios from "../api/axiosInstance"; // axios 인스턴스
+import instance from "../api/axiosInstance"; // 백엔드 인증용
+import dailyInstance from "../api/dailyInstance";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,23 +18,47 @@ const Login = () => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     const profile = params.get("is_profile_completed");
-    const userId = params.get("user_id");
 
+    // 1. 로그인 콜백(카카오 인증 성공) 케이스
     if (token) {
-      localStorage.setItem("access_token", token);
-      localStorage.setItem("user_id", userId); // AI 서버 인증용
+      setToken(token);
 
-      dispatch(login());
-      if (profile === "false") {
-        navigate("/userinfo", { replace: true });
-      } else {
-        navigate("/home", { replace: true });
-      }
+      // 2. 토큰으로 프로필 호출 → user_id 저장
+      instance.get("/users/profile/").then(async (res) => {
+        const userId = res.data.id; // 'id'가 user_id
+        setUserId(userId);
+
+        try {
+          const aiTokenRes = await dailyInstance.post("/auth/token", {
+            user_id: userId,
+          });
+
+          // AI 토큰 저장
+          if (aiTokenRes.data && aiTokenRes.data.token) {
+            localStorage.setItem("ai_jwt_token", aiTokenRes.data.token);
+          }
+
+          dispatch(login());
+
+          if (profile === "false") {
+            navigate("/userinfo", { replace: true });
+          } else {
+            navigate("/home", { replace: true });
+          }
+        } catch (error) {
+          console.error("AI 토큰 발급 실패:", error);
+          // AI 토큰 발급 실패해도 로그인은 진행
+          dispatch(login());
+          navigate("/home", { replace: true });
+        }
+      });
     } else {
-      const storedToken = localStorage.getItem("access_token");
-      if (storedToken) {
+      // 3. 새로고침/이미 로그인된 상태 체크
+      const storedToken = getToken();
+      const storedUserId = getUserId();
+
+      if (storedToken && storedUserId) {
         dispatch(login());
-        // 이미 로그인된 경우에도 프로필 여부 체크
         if (profile === "false") {
           navigate("/userinfo", { replace: true });
         } else {
