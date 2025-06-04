@@ -3,10 +3,13 @@ import Header from "../components/Header";
 import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import MainButton from "../components/MainButton";
-import { patchDiary, getDiaryDetail } from "../api/diary"; // getDiaryDetail 추가
-import { useParams, useNavigate } from "react-router-dom";
+import { postDiary } from "../api/diary"; // getDiaryDetail 추가
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 const DiaryModify = () => {
+  const location = useLocation();
+  const diary = location.state?.diary;
+
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
   const [date, setDate] = React.useState("");
@@ -15,18 +18,16 @@ const DiaryModify = () => {
 
   // 기존 일기 데이터 불러오기
   useEffect(() => {
-    if (id) {
-      getDiaryDetail(id).then((res) => {
-        setTitle(res.data.title || "");
-        setContent(res.data.content || "");
-        setDate(res.data.diary_date || "");
-      });
+    if (diary) {
+      setTitle(diary.title || "");
+      setContent(diary.body || "");
+      setDate(diary.diary_date || "");
     }
-  }, [id]);
+  }, [diary]);
 
   const handleSubmit = async () => {
     try {
-      await patchDiary(id, { title, content });
+      await postDiary(title, content);
       alert("일기 수정 성공");
       navigate(`/diary/${id}`);
     } catch (e) {

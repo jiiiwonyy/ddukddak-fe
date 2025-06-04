@@ -24,8 +24,8 @@ const Login = () => {
       setToken(token);
 
       // 2. 토큰으로 프로필 호출 → user_id 저장
-      instance.get("/users/profile/").then(async (res) => {
-        const userId = res.data.id; // 'id'가 user_id
+      instance.get("/users/profile/").then(async () => {
+        const userId = getUserId(); // 'id'가 user_id
         setUserId(userId);
 
         try {

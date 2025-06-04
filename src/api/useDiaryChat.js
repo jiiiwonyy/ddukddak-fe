@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT"; // Assuming this is the correct import path
 import dailyInstance from "./dailyInstance";
+import { useNavigate } from "react-router-dom";
 
 export const useDiaryChat = (startFunction) => {
   const { audioRef, playTTS } = useTTS();
@@ -11,6 +12,7 @@ export const useDiaryChat = (startFunction) => {
   const [isLoading, setIsLoading] = useState(true);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     return () => {
@@ -118,28 +120,20 @@ export const useDiaryChat = (startFunction) => {
   const sendMessage = async (message) => {
     if (!message || !message.trim()) return;
     try {
-      const response = await dailyInstance.post("/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message }),
-        mode: "cors",
-      });
+      const response = await dailyInstance.post("/ask", { message });
 
-      if (!response.ok) {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-        } catch {
-          console.error("응답 JSON 파싱 오류");
-        }
+      if (response.status !== 200) {
         throw new Error(
-          errorData.error || `메시지 전송 서버 오류 (${response.status})`
+          `메시지 전송 서버 오류 (${response.status}): ${response.statusText}`
         );
       }
 
-      const data = await response.json();
+      const data = response.data;
+
+      if (data.diary) {
+        navigate("/modifydiary", { state: { diary: data.diary } });
+        return data.diary;
+      }
       if (!data.response) throw new Error("봇 응답이 없습니다.");
 
       setChatMessage(data.response);

@@ -41,5 +41,11 @@ export const getUserId = () => localStorage.getItem("user_id");
 export const removeUserId = () => localStorage.removeItem("user_id");
 
 // 로그인 상태 확인 (백엔드 인증/AI 인증 목적에 맞게)
-export const isLoggedIn = () => getToken() !== null; // 백엔드 인증 필요시
+export function isLoggedIn() {
+  return (
+    !!localStorage.getItem("access_token") ||
+    !!localStorage.getItem("ai_jwt_token")
+  );
+}
+// export const isLoggedIn = () => getToken() !== null; // 백엔드 인증 필요시
 // export const isLoggedIn = () => getUserId() !== null; // AI서버만 쓸 땐 이거!

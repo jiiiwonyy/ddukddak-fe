@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { BsMic, BsMicFill } from "react-icons/bs";
 import { startDailyDiary } from "../api/diary";
 // import { useTTS } from "../api/useTTS";
@@ -16,10 +17,15 @@ const DailyDiary = () => {
   } = useDiaryChat(startDailyDiary);
 
   const [hasStarted, setHasStarted] = useState(false);
+  const navigate = useNavigate();
 
   const handleStart = async () => {
     setHasStarted(true);
     startConversation();
+  };
+
+  const handleEndConversation = () => {
+    navigate("/diary/modify", { state: { diary: chatMessage } });
   };
 
   return (
@@ -45,6 +51,10 @@ const DailyDiary = () => {
               )}
             </InnerCircle>
           </OuterCircle>
+        )}
+
+        {chatMessage.diary && (
+          <EndButton onClick={handleEndConversation}>대화 종료</EndButton>
         )}
       </ContentWrapper>
       <audio ref={audioRef} style={{ display: "none" }} />
@@ -151,4 +161,18 @@ const StartButton = styled.button`
   border-radius: 2rem;
   border: none;
   cursor: pointer;
+`;
+
+const EndButton = styled.button`
+  width: 100%;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  background-color: #ffcccc;
+  border-radius: 2rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
 `;
