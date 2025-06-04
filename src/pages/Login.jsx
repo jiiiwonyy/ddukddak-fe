@@ -15,64 +15,59 @@ const Login = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get("token");
-    const profile = params.get("is_profile_completed");
+    const loginFlow = async () => {
+      const params = new URLSearchParams(location.search);
+      const token = params.get("token");
+      const profile = params.get("is_profile_completed");
 
-    // 1. 로그인 콜백(카카오 인증 성공) 케이스
-    if (token) {
-      setToken(token);
-
-      // 2. 토큰으로 프로필 호출 → user_id 저장
-      instance.get("/users/profile/").then(async () => {
-        const userId = getUserId(); // 'id'가 user_id
-        setUserId(userId);
-
+      if (token) {
+        setToken(token);
         try {
-          const aiTokenRes = await dailyInstance.post("/auth/token", {
-            user_id: userId,
+          await instance.get("/users/profile/");
+          const userId = getUserId();
+          setUserId(userId);
+
+          // 1. 먼저 로그인 상태로 바꿔주고 홈으로 이동
+          dispatch(login());
+          navigate(profile === "false" ? "/userinfo" : "/home", {
+            replace: true,
           });
 
-          // AI 토큰 저장
-          if (aiTokenRes.data && aiTokenRes.data.token) {
-            localStorage.setItem("ai_jwt_token", aiTokenRes.data.token);
-          }
-
-          dispatch(login());
-
-          if (profile === "false") {
-            navigate("/userinfo", { replace: true });
-          } else {
-            navigate("/home", { replace: true });
-          }
+          // 2. 그 다음, AI 토큰 발급은 await 없이 "백그라운드"로 시도 (에러 나도 무시)
+          dailyInstance
+            .post("/auth/token", { user_id: userId })
+            .then((aiTokenRes) => {
+              if (aiTokenRes.data?.token) {
+                localStorage.setItem("ai_jwt_token", aiTokenRes.data.token);
+              }
+            })
+            .catch((err) => {
+              console.error("AI 토큰 발급 실패:", err);
+              // alert("AI 서버 점검 중! 챗봇/음성기능이 제한될 수 있습니다.");
+            });
         } catch (error) {
-          console.error("AI 토큰 발급 실패:", error);
-          // AI 토큰 발급 실패해도 로그인은 진행
-          dispatch(login());
-          navigate("/home", { replace: true });
-        }
-      });
-    } else {
-      // 3. 새로고침/이미 로그인된 상태 체크
-      const storedToken = getToken();
-      const storedUserId = getUserId();
-
-      if (storedToken && storedUserId) {
-        dispatch(login());
-        if (profile === "false") {
-          navigate("/userinfo", { replace: true });
-        } else {
-          if (location.pathname === "/login") {
-            navigate("/home", { replace: true });
-          }
+          // 프로필 호출 실패시
+          console.error("프로필 호출 실패:", error);
+          dispatch(logout());
+          navigate("/login", { replace: true });
         }
       } else {
-        dispatch(logout());
-        if (location.pathname !== "/login") {
+        // 새로고침/이미 로그인 체크
+        const storedToken = getToken();
+        const storedUserId = getUserId();
+        if (storedToken && storedUserId) {
+          dispatch(login());
+          navigate(profile === "false" ? "/userinfo" : "/home", {
+            replace: true,
+          });
+        } else {
+          dispatch(logout());
           navigate("/login", { replace: true });
         }
       }
-    }
+    };
+
+    loginFlow();
   }, [location.pathname, location.search, navigate, dispatch]);
 
   const handleLogin = () => {

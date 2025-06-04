@@ -25,7 +25,9 @@ const DailyDiary = () => {
   };
 
   const handleEndConversation = () => {
-    navigate("/diary/modify", { state: { diary: chatMessage } });
+    navigate("/diary/modify", {
+      state: { diary: chatMessage, category: "daily" },
+    });
   };
 
   return (

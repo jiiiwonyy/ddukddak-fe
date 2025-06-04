@@ -1,35 +1,46 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import MainButton from "../components/MainButton";
-import { patchDiary } from "../api/diary"; // getDiaryDetail 추가
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { postDiary } from "../api/diary"; // 등록용 함수만 사용
+import { useNavigate, useLocation } from "react-router-dom";
 
 const DiaryModify = () => {
   const location = useLocation();
   const diary = location.state?.diary;
 
-  const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
-  const [date, setDate] = React.useState("");
-  const { id } = useParams();
+  // 1. 오늘 날짜 자동 입력
+  const today = new Date().toISOString().split("T")[0];
+  const [diaryDate] = useState(today); // 무조건 오늘 날짜 (수정 불가)
+
+  // 2. category 자동 (페이지에서 state로 넘김, 기본값은 daily)
+  const category = location.state?.category || "daily";
+
+  // 3. 일기 본문/제목은 diary에서 받아와서 state로 초기화
+  const [title, setTitle] = useState(diary?.title || "");
+  const [body, setBody] = useState(diary?.body || "");
+
   const navigate = useNavigate();
 
-  // 기존 일기 데이터 불러오기
+  // diary 객체가 바뀌면 다시 초기화 (이건 안전장치)
   useEffect(() => {
     if (diary) {
       setTitle(diary.title || "");
-      setContent(diary.body || "");
-      setDate(diary.diary_date || "");
+      setBody(diary.body || "");
+      // diaryDate, category는 여기서 건드리지 않음!
     }
   }, [diary]);
 
-  const handleSubmit = async () => {
+  // 4. 등록 버튼
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault(); // ← 필수!
     try {
-      await patchDiary(title, content);
-      alert("일기 수정 성공");
-      navigate(`/diary/${id}`);
+      await postDiary(diaryDate, category, title, body);
+      console.log({ diaryDate, category, title, body });
+
+      alert("일기 등록 성공");
+      navigate("/home");
     } catch (e) {
       console.error(e);
       alert("일기 등록 실패");
@@ -38,33 +49,33 @@ const DiaryModify = () => {
 
   return (
     <PageWrapper>
-      <Header title="일상일기 수정" />
+      <Header
+        title={category === "daily" ? "일상일기 등록" : "주제일기 등록"}
+      />
       <PageBody>
         <DiaryTitle
           className="body2"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder="제목을 입력하세요"
         />
         <DiaryBox
           className="body2"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="내용을 입력하세요"
         />
-        <DiaryDate className="body1">
-          {date
-            ? `${date.slice(0, 4)}년 ${Number(date.slice(5, 7))}월 ${Number(
-                date.slice(8, 10)
-              )}일`
-            : ""}
-        </DiaryDate>
+        {/* 오늘 날짜 읽기전용으로 표기 */}
+        <DiaryDate className="body1">{today}</DiaryDate>
         <ModifyButtonWrapper>
-          <MainButton text="일상일기 수정 완료" onClick={handleSubmit} />
+          <MainButton text="일기 등록 완료" onClick={handleSubmit} />
         </ModifyButtonWrapper>
       </PageBody>
     </PageWrapper>
   );
 };
 
+// 스타일 컴포넌트들은 기존 그대로 사용!
 const DiaryTitle = styled.input`
   display: flex;
   flex-direction: column;
@@ -78,7 +89,6 @@ const DiaryTitle = styled.input`
   outline: none;
   margin-bottom: 0.5em;
 `;
-
 const DiaryBox = styled.textarea`
   display: flex;
   flex-direction: column;
@@ -92,7 +102,6 @@ const DiaryBox = styled.textarea`
   outline: none;
   resize: none;
 `;
-
 const PageBody = styled.div`
   display: flex;
   background-color: #fff;
@@ -100,12 +109,10 @@ const PageBody = styled.div`
   padding: 20px;
   position: relative;
 `;
-
 const DiaryDate = styled.div`
   display: flex;
   margin-top: 1rem;
 `;
-
 const ModifyButtonWrapper = styled.div`
   position: fixed;
   bottom: 3rem;

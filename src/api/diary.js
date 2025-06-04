@@ -11,8 +11,13 @@ export const getDiaryDetail = (id) => {
   return axios.get(`/diaries/${id}/`);
 };
 
-export const patchDiary = (id, data) => {
-  return axios.patch(`/diaries/${id}/`, data);
+export const postDiary = (diary_date, category, title, body) => {
+  return axios.post("/diaries/", {
+    diary_date,
+    category,
+    title,
+    content: body,
+  });
 };
 
 export const startDailyDiary = () => {
