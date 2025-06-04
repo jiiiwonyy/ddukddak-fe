@@ -49,6 +49,7 @@ const SettingPage = () => {
           onClick={() => {
             localStorage.removeItem("access_token");
             localStorage.removeItem("user_id");
+            localStorage.removeItem("ai_jwt_token");
             window.location.href = "/login";
           }}
           text="로그아웃 하기"
