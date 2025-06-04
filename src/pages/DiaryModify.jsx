@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import MainButton from "../components/MainButton";
-import { postDiary } from "../api/diary"; // getDiaryDetail 추가
+import { patchDiary } from "../api/diary"; // getDiaryDetail 추가
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 const DiaryModify = () => {
@@ -27,7 +27,7 @@ const DiaryModify = () => {
 
   const handleSubmit = async () => {
     try {
-      await postDiary(title, content);
+      await patchDiary(title, content);
       alert("일기 수정 성공");
       navigate(`/diary/${id}`);
     } catch (e) {
