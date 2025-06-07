@@ -4,30 +4,72 @@ import PageWrapper from "../components/PageWrapper";
 import Header from "../components/Header";
 import { BiChevronLeft } from "react-icons/bi";
 import MainButton from "../components/MainButton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const messages = [
-  { id: 1, sender: "bot", text: "안녕하세요! 무엇을 도와드릴까요?" },
-  { id: 2, sender: "user", text: "오늘 날씨 어때?" },
-  { id: 3, sender: "bot", text: "오늘은 맑고 화창한 날씨예요 ☀️" },
-];
-
+// 챗봇-style로 결과 펼치기
 const RetrospectDetail = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 훅에서 navigate 시 state로 넘긴 값 받아옴
+  const results = location.state?.results || [];
+  const feedback = location.state?.feedback || "";
+  // (통계용) 전체 questions는 location.state?.questions로 받음
+
+  // 챗봇-style로 messages 배열 만들기 (bot→user→bot→user…)
+  const messages = [];
+  results.forEach((item, idx) => {
+    messages.push(
+      {
+        id: idx * 3 + 1,
+        sender: "bot",
+        text: `Q${idx + 1} (${item.type}): ${item.question}`,
+      },
+      {
+        id: idx * 3 + 2,
+        sender: "user",
+        text: item.user_answer || "응답 없음",
+      },
+      {
+        id: idx * 3 + 3,
+        sender: "bot",
+        text: `📝 피드백: ${item.feedback}${
+          item.hint ? `\n💡 힌트: ${item.hint}` : ""
+        }\n${
+          item.is_correct === false ? "정답: " + item.correct_answer : ""
+        }\n점수: ${item.score}`,
+      }
+    );
+  });
 
   return (
     <PageWrapper>
       <Header
         title="회상 돌아보기"
         menuIcon={BiChevronLeft}
-        navigateTo={"/calendar"} // 아이콘을 prop으로 전달
+        navigateTo={"/calendar"}
       />
       <ChatContainer>
         {messages.map((msg) => (
           <MessageBubble key={msg.id} $isUser={msg.sender === "user"}>
-            {msg.text}
+            {msg.text.split("\n").map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                <br />
+              </React.Fragment>
+            ))}
           </MessageBubble>
         ))}
+
+        {/* 마지막 총평 피드백 등 (필요하다면) */}
+        {feedback && (
+          <MessageBubble $isUser={false}>
+            <b>최종 피드백</b>
+            <br />
+            {feedback}
+          </MessageBubble>
+        )}
+
         <MainButton
           text="홈으로 돌아가기"
           onClick={() => {
@@ -42,6 +84,7 @@ const RetrospectDetail = () => {
 
 export default RetrospectDetail;
 
+// Styled Components (기존과 동일)
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -63,4 +106,5 @@ const MessageBubble = styled.div`
   font-size: 16px;
   line-height: 1.4;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: pre-line;
 `;

@@ -4,12 +4,13 @@ import { useEffect } from "react";
 
 const ProtectedRoute = () => {
   const navigate = useNavigate();
+  const loggedIn = isLoggedIn();
 
   useEffect(() => {
-    if (!isLoggedIn()) {
+    if (!loggedIn) {
       navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [loggedIn, navigate]);
 
   if (!isLoggedIn()) {
     return null;

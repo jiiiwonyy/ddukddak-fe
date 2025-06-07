@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { BsMic, BsMicFill } from "react-icons/bs";
 import { startDailyDiary } from "../api/diary";
-// import { useTTS } from "../api/useTTS";
-// import { sttRequest } from "../api/useSTT";
 import { useDiaryChat } from "../api/useDiaryChat"; // Assuming this is the correct import path
+
 const DailyDiary = () => {
   const {
     startConversation,
@@ -13,7 +12,7 @@ const DailyDiary = () => {
     isListening,
     handleMicClick,
     audioRef,
-  } = useDiaryChat(startDailyDiary);
+  } = useDiaryChat(startDailyDiary, "daily");
 
   const [hasStarted, setHasStarted] = useState(false);
 

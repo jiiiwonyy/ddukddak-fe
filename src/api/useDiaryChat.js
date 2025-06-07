@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT"; // Assuming this is the correct import path
+import dailyInstance from "./dailyInstance";
+import { useNavigate } from "react-router-dom";
 
-export const useDiaryChat = (startFunction) => {
+export const useDiaryChat = (startFunction, category) => {
   const { audioRef, playTTS } = useTTS();
   const [chatMessage, setChatMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -10,8 +12,7 @@ export const useDiaryChat = (startFunction) => {
   const [isLoading, setIsLoading] = useState(true);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
     return () => {
@@ -119,29 +120,23 @@ export const useDiaryChat = (startFunction) => {
   const sendMessage = async (message) => {
     if (!message || !message.trim()) return;
     try {
-      const response = await fetch("https://nabiya.site/ask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message }),
-        mode: "cors",
-      });
+      const response = await dailyInstance.post("/ask", { message });
 
-      if (!response.ok) {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-        } catch {
-          console.error("응답 JSON 파싱 오류");
-        }
+      if (response.status !== 200) {
         throw new Error(
-          errorData.error || `메시지 전송 서버 오류 (${response.status})`
+          `메시지 전송 서버 오류 (${response.status}): ${response.statusText}`
         );
       }
 
-      const data = await response.json();
+      const data = response.data;
+
+      if (data.diary) {
+        // 2초(2000ms) 후에 이동
+        setTimeout(() => {
+          navigate("/modifydiary", { state: { diary: data.diary, category } });
+        }, 2000);
+        return data.diary;
+      }
       if (!data.response) throw new Error("봇 응답이 없습니다.");
 
       setChatMessage(data.response);

@@ -1,28 +1,15 @@
 import { useRef } from "react";
+import dailyInstance from "./dailyInstance";
 
 export function useTTS() {
   const audioRef = useRef(null);
   const playTTS = async (text) => {
     try {
       console.log("TTS 요청 시작:", text);
-      const response = await fetch("https://nabiya.site/tts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ text }),
-        mode: "cors",
-      });
+      const response = await dailyInstance.post("/tts", { text });
 
       console.log("TTS 응답 상태:", response.status);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("TTS 서버 응답 에러:", errorText);
-        throw new Error(`TTS 서버 오류 (${response.status}): ${errorText}`);
-      }
-
-      const data = await response.json();
+      const data = response.data;
       console.log("TTS 응답 데이터:", data);
 
       if (!data.audio_url) {
@@ -75,9 +62,9 @@ export function useTTS() {
 
       // 🎯 URL 해제 (메모리 누수 방지)
       URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      console.error("TTS 처리 중 에러 발생:", err);
-      return;
+    } catch (error) {
+      console.error("TTS 오류:", error);
+      throw error;
     }
   };
 

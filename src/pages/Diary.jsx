@@ -51,12 +51,7 @@ const Diary = () => {
       <DiaryWrapper>
         <DiaryTitleInput className="title3">{diary.title}</DiaryTitleInput>
         <DiaryTitleContent className="body3">{diary.content}</DiaryTitleContent>
-        <DiaryDate>
-          {diary.diary_date &&
-            `${diary.diary_date.slice(0, 4)}년 ${Number(
-              diary.diary_date.slice(5, 7)
-            )}월 ${Number(diary.diary_date.slice(8, 10))}일`}
-        </DiaryDate>
+        <DiaryDate>{diary.diary_date}</DiaryDate>
       </DiaryWrapper>
     </PageWrapper>
   );

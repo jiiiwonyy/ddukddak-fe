@@ -5,7 +5,6 @@ import PageWrapper from "../components/PageWrapper";
 import HomeListItem from "../components/HomeListItem";
 import { BiPencil, BiJoystick } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { startDailyDiary } from "../api/diary";
 // import { getMonthlyDiaries } from "../api/diary";
 import CustomAlert from "../components/AlertModal";
 import { getGameDate } from "../api/game";
@@ -69,7 +68,6 @@ const Home = () => {
     try {
       if (category === "daily") {
         try {
-          await startDailyDiary();
           navigate(path);
           sessionStorage.setItem("playFirstTTS", "true");
         } catch (e) {
