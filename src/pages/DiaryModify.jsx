@@ -9,38 +9,31 @@ import { useNavigate, useLocation } from "react-router-dom";
 const DiaryModify = () => {
   const location = useLocation();
   const diary = location.state?.diary;
-
-  // 1. 오늘 날짜 자동 입력
+  const category = location.state?.category;
   const today = new Date().toISOString().split("T")[0];
-  const [diaryDate] = useState(today); // 무조건 오늘 날짜 (수정 불가)
+  const [diaryDate] = useState(today);
 
-  // 2. category 자동 (페이지에서 state로 넘김, 기본값은 daily)
-  const category = location.state?.category || "daily";
-
-  // 3. 일기 본문/제목은 diary에서 받아와서 state로 초기화
   const [title, setTitle] = useState(diary?.title || "");
   const [body, setBody] = useState(diary?.body || "");
 
   const navigate = useNavigate();
 
-  // diary 객체가 바뀌면 다시 초기화 (이건 안전장치)
   useEffect(() => {
     if (diary) {
       setTitle(diary.title || "");
       setBody(diary.body || "");
-      // diaryDate, category는 여기서 건드리지 않음!
     }
   }, [diary]);
 
   // 4. 등록 버튼
   const handleSubmit = async (e) => {
-    if (e) e.preventDefault(); // ← 필수!
+    if (e) e.preventDefault();
     try {
       await postDiary(diaryDate, category, title, body);
       console.log({ diaryDate, category, title, body });
 
       alert("일기 등록 성공");
-      navigate("/home");
+      navigate("/retrospect");
     } catch (e) {
       console.error(e);
       alert("일기 등록 실패");
@@ -65,7 +58,7 @@ const DiaryModify = () => {
           onChange={(e) => setBody(e.target.value)}
           placeholder="내용을 입력하세요"
         />
-        {/* 오늘 날짜 읽기전용으로 표기 */}
+
         <DiaryDate className="body1">{today}</DiaryDate>
         <ModifyButtonWrapper>
           <MainButton text="일기 등록 완료" onClick={handleSubmit} />

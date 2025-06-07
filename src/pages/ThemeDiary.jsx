@@ -3,7 +3,7 @@ import { BsMic, BsMicFill } from "react-icons/bs";
 import { useDiaryChat } from "../api/useDiaryChat";
 import { startThemeDiary } from "../api/diary";
 import { useState } from "react";
-// import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ThemeDiary = () => {
   const {
@@ -13,22 +13,20 @@ const ThemeDiary = () => {
     isListening,
     handleMicClick,
     audioRef,
-  } = useDiaryChat(startThemeDiary);
-  const [hasStarted, setHasStarted] = useState(false);
+  } = useDiaryChat(startThemeDiary, "topic");
 
+  const [hasStarted, setHasStarted] = useState(false);
+  const navigate = useNavigate();
   const handleStart = async () => {
     setHasStarted(true);
     startConversation();
   };
 
-  // useEffect(() => {
-  //   const shouldPlay = sessionStorage.getItem("playFirstTTS");
-  //   if (!isInitialized.current && shouldPlay === "true") {
-  //     startConversation();
-  //     isInitialized.current = true;
-  //     sessionStorage.removeItem("playFirstTTS"); // 재실행 방지
-  //   }
-  // }, []);
+  const handleEndConversation = () => {
+    navigate("modifydiary", {
+      state: { diary: chatMessage, category: "topic" },
+    });
+  };
   return (
     <PageWrapper>
       <FixedBackground />
@@ -50,6 +48,9 @@ const ThemeDiary = () => {
               )}
             </InnerCircle>
           </OuterCircle>
+        )}
+        {chatMessage.diary && (
+          <EndButton onClick={handleEndConversation}>대화 종료</EndButton>
         )}
       </ContentWrapper>
       <audio ref={audioRef} style={{ display: "none" }} />
@@ -156,4 +157,18 @@ const StartButton = styled.button`
   border-radius: 2rem;
   border: none;
   cursor: pointer;
+`;
+
+const EndButton = styled.button`
+  width: 100%;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  background-color: #ffcccc;
+  border-radius: 2rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
 `;

@@ -4,7 +4,7 @@ import { sttRequest } from "../api/useSTT"; // Assuming this is the correct impo
 import dailyInstance from "./dailyInstance";
 import { useNavigate } from "react-router-dom";
 
-export const useDiaryChat = (startFunction) => {
+export const useDiaryChat = (startFunction, category) => {
   const { audioRef, playTTS } = useTTS();
   const [chatMessage, setChatMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -131,7 +131,10 @@ export const useDiaryChat = (startFunction) => {
       const data = response.data;
 
       if (data.diary) {
-        navigate("/modifydiary", { state: { diary: data.diary } });
+        // 2초(2000ms) 후에 이동
+        setTimeout(() => {
+          navigate("/modifydiary", { state: { diary: data.diary, category } });
+        }, 2000);
         return data.diary;
       }
       if (!data.response) throw new Error("봇 응답이 없습니다.");
