@@ -23,8 +23,8 @@ const Login = () => {
       if (token) {
         setToken(token);
         try {
-          await instance.get("/users/profile/");
-          const userId = getUserId();
+          const profileRes = await instance.get("/users/profile/");
+          const userId = profileRes.data.id;
           setUserId(userId);
 
           // 1. 먼저 로그인 상태로 바꿔주고 홈으로 이동
