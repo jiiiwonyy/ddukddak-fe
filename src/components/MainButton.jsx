@@ -20,7 +20,7 @@ const Button = styled.button`
 //   width: calc(100% - 40px);
 // `;
 
-const MainButton = ({ className, text, onClick, fixed }) => {
+const MainButton = ({ className, text, onClick }) => {
   const buttonElement = (
     <Button className={className} onClick={onClick}>
       <div className="title3">{text}</div>

@@ -26,7 +26,11 @@ const RetrospectDiary = () => {
         />
 
         {!sessionStarted ? (
-          <StartButton onClick={startSession} disabled={isLoading}>
+          <StartButton
+            className="title3"
+            onClick={startSession}
+            disabled={isLoading}
+          >
             {isLoading ? "로딩 중..." : "일기 시작"}
           </StartButton>
         ) : (
@@ -120,13 +124,13 @@ const Subtitle = styled.div`
 
 const HintBar = styled.div`
   font-size: 1rem;
-  align-text: center;
+  text-align: center;
 `;
 
 const OuterCircle = styled.div`
   width: 100px;
   height: 100px;
-  background-color: #dceeff;
+  background-color: rgb(247, 202, 191);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -135,12 +139,12 @@ const OuterCircle = styled.div`
   left: 50%;
   transform: translateX(-50%);
   position: absolute;
-  bottom: 20%;
+  bottom: 15%;
 `;
 const InnerCircle = styled.div`
   width: 70px;
   height: 70px;
-  background-color: #a9d1ff;
+  background-color: rgb(206, 137, 120);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -149,14 +153,16 @@ const InnerCircle = styled.div`
 `;
 
 const StartButton = styled.button`
+  margin-top: 2rem;
   width: 100%;
   height: 3.5rem;
   padding: 0.5rem 1rem;
   justify-content: center;
   display: flex;
   align-items: center;
-  background-color: #c4d9ff;
+  background-color: rgb(206, 137, 120);
   border-radius: 2rem;
   border: none;
   cursor: pointer;
+  color: white;
 `;
