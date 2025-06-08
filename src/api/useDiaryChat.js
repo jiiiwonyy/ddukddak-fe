@@ -3,6 +3,7 @@ import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT"; // Assuming this is the correct import path
 import dailyInstance from "./dailyInstance";
 import { useNavigate } from "react-router-dom";
+import { flushSync } from "react-dom";
 
 export const useDiaryChat = (startFunction, category) => {
   const { audioRef, playTTS } = useTTS();
@@ -141,6 +142,9 @@ export const useDiaryChat = (startFunction, category) => {
 
       setChatMessage(data.response);
       try {
+        flushSync(() => {
+          setChatMessage(message);
+        });
         await playTTS(data.response);
       } catch {
         console.error("TTS 오류:", data.response);

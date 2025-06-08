@@ -13,7 +13,7 @@ const DiaryListItem = ({ id, diarytype, date, title }) => {
   const navigate = useNavigate();
   const handleClick = () => {
     if (diarytype === "reminiscence") {
-      navigate("/retrospectdetail");
+      navigate(`/retrospectdetail/${id}`);
     } else {
       navigate(`/diary/${id}`);
     }

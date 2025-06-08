@@ -1,5 +1,6 @@
 import axios from "../api/axiosInstance";
 import dailyInstance from "../api/dailyInstance";
+import { getLocalDateString } from "../api/time";
 
 export const getMonthlyDiaries = (year, month) => {
   return axios.get(`/diaries/monthly`, {
@@ -20,12 +21,8 @@ export const postDiary = (diary_date, category, title, body) => {
   });
 };
 
-export const postRetrospectDiary = (diary_date, category, qna) => {
-  return axios.post("/diaries/", {
-    diary_date,
-    category,
-    qna,
-  });
+export const postRetrospectDiary = (body) => {
+  return axios.post("/diaries/", body);
 };
 
 export const startDailyDiary = () => {
@@ -38,7 +35,7 @@ export const startThemeDiary = () => {
 
 export const startRetrospectDiary = () => {
   return dailyInstance.post(`/recall-session/start`, {
-    date: new Date().toISOString().split("T")[0],
+    date: getLocalDateString(),
   });
 };
 

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT";
 import {
@@ -7,29 +7,85 @@ import {
   postRetrospectDiary,
 } from "../api/diary";
 import { useNavigate } from "react-router-dom";
+import { getLocalDateString } from "./time";
+
+const TYPE_MAP = {
+  기억력: "MEMORY",
+  "장소 지남력": "PLACE_ORIENTATION",
+  "시간 지남력": "TIME_ORIENTATION",
+};
+
+// 카테고리별 점수 평균 계산 함수
+function computeCategoryScores(results) {
+  const categoryTrials = {};
+  let currentType = null;
+  let currentTrial = [];
+
+  for (let i = 0; i < results.length; i++) {
+    const item = results[i];
+    // 질문(BOT, type 있을 때)
+    if (item.sender_type === "BOT" && item.type) {
+      if (currentType && currentTrial.length > 0) {
+        if (!categoryTrials[currentType]) categoryTrials[currentType] = [];
+        categoryTrials[currentType].push([...currentTrial]);
+      }
+      currentType = item.type;
+      currentTrial = [];
+    }
+    // 피드백(BOT, score 있을 때)
+    if (
+      item.sender_type === "BOT" &&
+      typeof item.score === "number" &&
+      currentType
+    ) {
+      currentTrial.push(item.score);
+    }
+  }
+  if (currentType && currentTrial.length > 0) {
+    if (!categoryTrials[currentType]) categoryTrials[currentType] = [];
+    categoryTrials[currentType].push([...currentTrial]);
+  }
+
+  const result = [];
+  for (const [category, trials] of Object.entries(categoryTrials)) {
+    const trialAverages = trials.map(
+      (scores) => scores.reduce((sum, v) => sum + v, 0) / (scores.length || 1)
+    );
+    const categoryAvg =
+      trialAverages.reduce((sum, v) => sum + v, 0) /
+      (trialAverages.length || 1);
+
+    // **여기서 변환 적용**
+    result.push({
+      category: TYPE_MAP[category] || category, // 변환 없으면 원본
+      accuracy: Math.round(categoryAvg * 10) / 10,
+    });
+  }
+  return result;
+}
 
 export const useRetrospectChat = () => {
   const { audioRef, playTTS } = useTTS();
   const [questions, setQuestions] = useState([]);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [diaryContent, setDiaryContent] = useState([]);
-  const [subtitle, setSubtitle] = useState(""); // 캐릭터 자막(한 줄)
+  const [subtitle, setSubtitle] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [sessionFinished, setSessionFinished] = useState(false);
-  const [finalFeedback, setFinalFeedback] = useState(null);
+  const [finalFeedback, setFinalFeedback] = useState("");
   const [hint, setHint] = useState("");
-  const [waitCorrectAnswer, setWaitCorrectAnswer] = useState(false);
-  const [pendingNextQuestion, setPendingNextQuestion] = useState(null);
+  const [waitingRetry, setWaitingRetry] = useState(false);
 
+  // 대화 turn별로 쌓음 (질문, 답, 피드백, score, type 등)
   const [retrospectResults, setRetrospectResults] = useState([]);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const navigate = useNavigate();
 
-  // 1. 회상 세션 시작
+  // 세션 시작
   const startSession = async () => {
     setIsLoading(true);
     try {
@@ -41,7 +97,17 @@ export const useRetrospectChat = () => {
       setRetrospectResults([]);
       setSessionStarted(true);
       setSessionFinished(false);
+
+      // 첫 질문을 메시지로 기록 (type 포함)
+      setRetrospectResults([
+        { sender_type: "BOT", message: qArr[0].question, type: qArr[0].type },
+      ]);
       setSubtitle(qArr[0].question);
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => {
+          requestAnimationFrame(resolve);
+        })
+      );
       await playTTS(qArr[0].question);
     } catch {
       setSubtitle("❌ 세션 시작 실패");
@@ -49,7 +115,7 @@ export const useRetrospectChat = () => {
     setIsLoading(false);
   };
 
-  // 마이크 녹음 시작 (공통)
+  // 마이크 녹음
   const startRecording = async () => {
     if (isListening) return;
     try {
@@ -65,12 +131,7 @@ export const useRetrospectChat = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm;codecs=opus",
         });
-        // 분기: 일반 답변 STT/정답(STT) 구분
-        if (waitCorrectAnswer) {
-          await processCorrectAnswerAudio(audioBlob);
-        } else {
-          await processAnswerAudio(audioBlob);
-        }
+        await processAudio(audioBlob);
         stream.getTracks().forEach((track) => track.stop());
       };
 
@@ -88,8 +149,8 @@ export const useRetrospectChat = () => {
     }
   };
 
-  // 답변 STT → 서버에 답변 보내기
-  const processAnswerAudio = async (audioBlob) => {
+  // STT 결과 → 답변 서버 전송
+  const processAudio = async (audioBlob) => {
     setIsLoading(true);
     try {
       const transcript = await sttRequest(audioBlob);
@@ -105,32 +166,12 @@ export const useRetrospectChat = () => {
     setIsLoading(false);
   };
 
-  // "정답(STT)" 오디오 처리
-  const processCorrectAnswerAudio = async (audioBlob) => {
-    setIsLoading(true);
-    try {
-      await sttRequest(audioBlob);
-      // 여기에 정답에 대한 저장/추가 처리 필요하면 추가!
-      setWaitCorrectAnswer(false);
-      setHint("");
-      if (pendingNextQuestion) {
-        setQuestionIndex((prev) => prev + 1);
-        setSubtitle(pendingNextQuestion.question);
-        await playTTS(pendingNextQuestion.question);
-        setPendingNextQuestion(null);
-      } else {
-        setSessionFinished(true);
-        setFinalFeedback(finalFeedback); // 이미 세팅된 값 재사용(필요에 따라 보완)
-        setSubtitle("모든 질문이 완료되었습니다!");
-        await playTTS("모든 질문이 완료되었습니다!");
-      }
-    } catch {
-      setSubtitle("정답 음성 인식 에러!");
-    }
-    setIsLoading(false);
+  // 마이크 버튼 핸들러
+  const handleMicClick = () => {
+    if (isListening) stopRecording();
+    else startRecording();
   };
 
-  // 답변 서버 전송 및 피드백+힌트+정답(STT) 대기
   const sendAnswer = async (userAnswer) => {
     setIsLoading(true);
     try {
@@ -141,77 +182,132 @@ export const useRetrospectChat = () => {
         diary_content: diaryContent,
       });
 
-      // 결과 누적
-      setRetrospectResults((prev) => [
-        ...prev,
-        {
-          question: questions[questionIndex].question,
-          type: questions[questionIndex].type,
-          correct_answer: questions[questionIndex].answer,
-          user_answer: userAnswer,
-          is_correct: res.data.is_correct,
-          feedback: res.data.feedback,
-          hint: res.data.hint,
-          score: res.data.score,
-        },
-      ]);
+      const currType = questions[questionIndex]?.type || null;
+      const isCorrect =
+        res.data.is_correct === true || res.data.diagnosis === "correct";
+      const isLastQuestion = !res.data.next_question;
 
-      // setSubtitle(res.data.feedback);
-      // await playTTS(res.data.feedback);
-
-      setHint(res.data.hint || "");
-
-      // next_question을 바로 TTS하지 않고 "정답을 말씀해 주세요" 안내
-      if (res.data.next_question) {
-        setPendingNextQuestion(res.data.next_question);
-        setWaitCorrectAnswer(true);
+      if (!isCorrect) {
+        // 오답이면: 피드백 주고 재시도 (같은 질문 유지)
+        setRetrospectResults((prev) => [
+          ...prev,
+          { sender_type: "USER", message: userAnswer },
+          {
+            sender_type: "BOT",
+            message: res.data.feedback,
+            score: res.data.score,
+            type: currType,
+          },
+        ]);
+        setWaitingRetry(true);
+        setHint(res.data.hint || "");
         setSubtitle(res.data.feedback);
         await playTTS(res.data.feedback);
-      } else {
+        setIsLoading(false);
+        return;
+      }
+
+      // 정답일 때만 다음 질문으로 넘어감
+      setWaitingRetry(false);
+
+      if (isLastQuestion) {
+        // 마지막 질문에서 정답을 맞춘 경우
+        setRetrospectResults((prev) => [
+          ...prev,
+          { sender_type: "USER", message: userAnswer },
+          {
+            sender_type: "BOT",
+            message: res.data.feedback,
+            score: res.data.score,
+            type: currType,
+          },
+        ]);
+        setFinalFeedback(res.data.feedback_summary || res.data.feedback || "");
         setSessionFinished(true);
-        setFinalFeedback(res.data.feedback_summary || res.data.feedback);
+
         setSubtitle("모든 질문이 완료되었습니다!");
         await playTTS("모든 질문이 완료되었습니다!");
+
+        // endSession은 useEffect에서 sessionFinished 변화 감지로 실행
+        setIsLoading(false);
+        return;
       }
+
+      // 정답이고, 아직 마지막 질문이 아니면:
+      setRetrospectResults((prev) => [
+        ...prev,
+        { sender_type: "USER", message: userAnswer },
+        {
+          sender_type: "BOT",
+          message: res.data.feedback,
+          score: res.data.score,
+          type: currType,
+        },
+        {
+          sender_type: "BOT",
+          message: res.data.next_question.question,
+          type: res.data.next_question.type,
+        },
+      ]);
+      setQuestionIndex((prev) => prev + 1);
+
+      setSubtitle(res.data.feedback);
+      await playTTS(res.data.feedback);
+      setSubtitle(res.data.next_question.question);
+
+      await playTTS(res.data.next_question.question);
+
+      setIsLoading(false);
     } catch {
       setSubtitle("❌ 서버 오류, 다시 시도!");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
-  // 마이크 버튼 핸들러
-  const handleMicClick = () => {
-    if (isListening) stopRecording();
-    else startRecording();
-  };
-
-  // 대화 종료(피드백 페이지 이동 등)
   const endSession = useCallback(async () => {
-    const diary_date = new Date().toISOString().split("T")[0];
-    const category = "retrospect";
+    const diary_date = getLocalDateString();
+    const category = "reminiscence";
+    const title = diary_date + "의 회상";
+
+    // chat_messages 배열로 변환
+    const chat_messages = retrospectResults.map(({ sender_type, message }) => ({
+      sender_type,
+      message,
+    }));
+
+    // 카테고리별 점수 평균
+    const scores = computeCategoryScores(retrospectResults);
+
     try {
-      await postRetrospectDiary(diary_date, category, retrospectResults);
+      await postRetrospectDiary({
+        diary_date,
+        category,
+        title,
+        chat_messages,
+        final_feedback: finalFeedback,
+        scores,
+      });
     } catch (e) {
       console.error("회상 QnA 저장 실패", e);
     }
-
     navigate("/retrospectdetail", {
       state: {
         feedback: finalFeedback,
         results: retrospectResults,
+        chat_messages,
         questions,
+        scores,
       },
     });
   }, [navigate, finalFeedback, retrospectResults, questions]);
 
+  // 마지막 질문 처리 후 sessionFinished가 true가 됨
   useEffect(() => {
-    if (subtitle === "모든 질문이 완료되었습니다!" && sessionFinished) {
-      const timer = setTimeout(() => {
-        endSession();
-      }, 1200); // TTS가 끝날 수 있도록 1.2초 정도 딜레이
-      return () => clearTimeout(timer);
+    if (sessionFinished) {
+      // 이 시점에 retrospectResults는 최신값!
+      endSession();
     }
-  }, [subtitle, sessionFinished, endSession]);
+  }, [sessionFinished, endSession]);
 
   return {
     audioRef,
@@ -224,7 +320,7 @@ export const useRetrospectChat = () => {
     handleMicClick,
     endSession,
     hint,
-    waitCorrectAnswer, // UI에서 "정답 STT"용 마이크 표시 등 활용
+    waitingRetry,
     retrospectResults,
   };
 };

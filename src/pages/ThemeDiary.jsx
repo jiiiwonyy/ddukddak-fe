@@ -116,7 +116,7 @@ const Subtitle = styled.div`
   bottom: 0%;
   width: 100%;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #212121;
   font-weight: bold;
   z-index: 2;

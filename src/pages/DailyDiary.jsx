@@ -33,7 +33,6 @@ const DailyDiary = () => {
         ) : (
           <Subtitle>{isLoading ? "로딩 중..." : chatMessage}</Subtitle>
         )}
-
         {hasStarted && (
           <OuterCircle>
             <InnerCircle onClick={handleMicClick}>
@@ -107,7 +106,7 @@ const Subtitle = styled.div`
   position: relative;
   width: 100%;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #212121;
   font-weight: bold;
   z-index: 2;
