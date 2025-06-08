@@ -5,7 +5,7 @@ import PageWrapper from "../components/PageWrapper";
 import HomeListItem from "../components/HomeListItem";
 import { BiPencil, BiJoystick } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-// import { getMonthlyDiaries } from "../api/diary";
+import { getMonthlyDiaries } from "../api/diary";
 import CustomAlert from "../components/AlertModal";
 import { getGameDate } from "../api/game";
 
@@ -38,12 +38,12 @@ const Home = () => {
     }
   }, []);
 
-  // const checkTodayDiaryExists = async (category) => {
-  //   const { year, month, todayStr } = getTodayInfo();
-  //   const res = await getMonthlyDiaries(year, month);
-  //   const diaries = res.data[todayStr] || [];
-  //   return diaries.some((entry) => entry.category === category);
-  // };
+  const checkTodayDiaryExists = async (category) => {
+    const { year, month, todayStr } = getTodayInfo();
+    const res = await getMonthlyDiaries(year, month);
+    const diaries = res.data[todayStr] || [];
+    return diaries.some((entry) => entry.category === category);
+  };
 
   const handleGameClick = async () => {
     const todayStr = getTodayInfo().todayStr;
@@ -66,21 +66,22 @@ const Home = () => {
 
   const handleDiaryClick = async (category, path) => {
     try {
-      if (category === "daily") {
-        try {
-          navigate(path);
-          sessionStorage.setItem("playFirstTTS", "true");
-        } catch (e) {
-          console.error("일상일기 시작 실패:", e);
-          // 502 에러나 CORS 에러가 발생해도 페이지로 이동
-          navigate(path);
-        }
-      } else {
-        navigate(path);
-        sessionStorage.setItem("playFirstTTS", "true");
+      // 오늘 해당 카테고리 일기 작성 여부 확인
+      const exists = await checkTodayDiaryExists(category);
+      if (exists) {
+        setAlertMsg(
+          category === "daily"
+            ? "오늘은 이미 일상일기를 작성했어요!"
+            : "오늘은 이미 주제일기를 작성했어요!"
+        );
+        setAlertOpen(true);
+        return; // 작성 페이지로 이동하지 않음!
       }
+      // 아직 작성 안 했다면 이동
+      navigate(path);
+      sessionStorage.setItem("playFirstTTS", "true");
     } catch (e) {
-      console.error(e);
+      console.error("일기 작성 상태 확인에 실패했습니다.", e);
       setAlertMsg("일기 작성 상태 확인에 실패했습니다.");
       setAlertOpen(true);
     }

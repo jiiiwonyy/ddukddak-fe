@@ -5,7 +5,7 @@ export const postGameResult = (data) => {
 };
 
 export const getStats = (year, month) => {
-  return axios.get(`/monthly-stats`, {
+  return axios.get(`/stats/monthly/`, {
     params: { year, month },
   });
 };

@@ -3,7 +3,6 @@ import { BsMic, BsMicFill } from "react-icons/bs";
 import { useDiaryChat } from "../api/useDiaryChat";
 import { startThemeDiary } from "../api/diary";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const ThemeDiary = () => {
   const {
@@ -11,22 +10,17 @@ const ThemeDiary = () => {
     chatMessage,
     isLoading,
     isListening,
+    isTTSPlaying,
     handleMicClick,
     audioRef,
   } = useDiaryChat(startThemeDiary, "topic");
 
   const [hasStarted, setHasStarted] = useState(false);
-  const navigate = useNavigate();
   const handleStart = async () => {
     setHasStarted(true);
     startConversation();
   };
 
-  const handleEndConversation = () => {
-    navigate("modifydiary", {
-      state: { diary: chatMessage, category: "topic" },
-    });
-  };
   return (
     <PageWrapper>
       <FixedBackground />
@@ -34,11 +28,13 @@ const ThemeDiary = () => {
       <ContentWrapper>
         <CharacterImage src="/assets/images/themeCat.svg" alt="Character" />
         {!hasStarted ? (
-          <StartButton onClick={handleStart}>일기 시작</StartButton>
+          <StartButton className="title3" onClick={handleStart}>
+            일기 시작
+          </StartButton>
         ) : (
           <Subtitle>{isLoading ? "로딩 중..." : chatMessage}</Subtitle>
         )}
-        {hasStarted && (
+        {hasStarted && !isTTSPlaying && (
           <OuterCircle>
             <InnerCircle onClick={handleMicClick}>
               {isListening ? (
@@ -48,9 +44,6 @@ const ThemeDiary = () => {
               )}
             </InnerCircle>
           </OuterCircle>
-        )}
-        {chatMessage.diary && (
-          <EndButton onClick={handleEndConversation}>대화 종료</EndButton>
         )}
       </ContentWrapper>
       <audio ref={audioRef} style={{ display: "none" }} />
@@ -116,7 +109,7 @@ const Subtitle = styled.div`
   bottom: 0%;
   width: 100%;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #212121;
   font-weight: bold;
   z-index: 2;
@@ -125,7 +118,7 @@ const Subtitle = styled.div`
 const OuterCircle = styled.div`
   width: 100px;
   height: 100px;
-  background-color: #dceeff;
+  background-color: rgb(235, 207, 198);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -134,12 +127,12 @@ const OuterCircle = styled.div`
   left: 50%;
   transform: translateX(-50%);
   position: absolute;
-  bottom: 20%;
+  bottom: 15%;
 `;
 const InnerCircle = styled.div`
   width: 70px;
   height: 70px;
-  background-color: #a9d1ff;
+  background-color: rgb(182, 128, 110);
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -149,26 +142,13 @@ const InnerCircle = styled.div`
 const StartButton = styled.button`
   width: 100%;
   height: 3.5rem;
+  margin-top: 2rem;
   padding: 0.5rem 1rem;
   justify-content: center;
   display: flex;
   align-items: center;
-  background-color: #c4d9ff;
+  background-color: rgb(235, 207, 198);
   border-radius: 2rem;
   border: none;
   cursor: pointer;
-`;
-
-const EndButton = styled.button`
-  width: 100%;
-  height: 3.5rem;
-  padding: 0.5rem 1rem;
-  justify-content: center;
-  display: flex;
-  align-items: center;
-  background-color: #ffcccc;
-  border-radius: 2rem;
-  border: none;
-  cursor: pointer;
-  margin-top: 20px;
 `;

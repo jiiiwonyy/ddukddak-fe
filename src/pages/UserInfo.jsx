@@ -6,6 +6,7 @@ import styled, { css } from "styled-components";
 import PageWrapper from "../components/PageWrapper";
 import { saveUserProfile } from "../api/user";
 import { useNavigate } from "react-router-dom";
+import { getLocalDateString } from "../api/time";
 
 const SPECIAL_OPTION = "가족이 없습니다 / 기입하고 싶지 않습니다";
 const FAMILY_OPTIONS = ["배우자", "자식", "엄마", "아빠", SPECIAL_OPTION];
@@ -18,7 +19,7 @@ const UserInfo = () => {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [isMarried, setIsMarried] = useState("");
 
-  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD" 형식
+  const today = getLocalDateString(); // "YYYY-MM-DD" 형식
 
   const navigate = useNavigate();
 

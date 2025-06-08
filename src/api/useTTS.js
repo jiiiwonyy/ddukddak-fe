@@ -48,19 +48,25 @@ export function useTTS() {
           resolve();
         };
         audioRef.current.onerror = (e) => {
+          console.error("오디오 에러:", e);
           clearTimeout(timeoutId);
-          console.error("오디오 로드 에러:", e);
           reject(new Error("오디오 로드 실패"));
         };
-
         audioRef.current.load();
       });
 
-      console.log("오디오 재생 시작");
-      await audioRef.current.play();
-      console.log("오디오 재생 완료");
-
-      // 🎯 URL 해제 (메모리 누수 방지)
+      // 🔥 여기서 재생 후 "끝날 때까지" 기다림!
+      await new Promise((resolve, reject) => {
+        audioRef.current.onended = () => {
+          resolve();
+        };
+        audioRef.current.onerror = (e) => {
+          console.error("오디오 에러:", e);
+          reject(new Error("오디오 재생 실패"));
+        };
+        audioRef.current.play();
+      });
+      console.log("오디오 재생 완료(정말로 끝까지!)");
       URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error("TTS 오류:", error);

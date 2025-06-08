@@ -26,7 +26,7 @@ const MyPage = () => {
   }, []);
 
   return (
-    <>
+    <PageWrapper>
       <PropileBox>
         <PropileName className="title2">{userName} 님 안녕하세요🖐🏻</PropileName>
         <SettingBox
@@ -46,7 +46,7 @@ const MyPage = () => {
         </GraphBox>
       </MyPageWrapper>
       <BottomNav />
-    </>
+    </PageWrapper>
   );
 };
 

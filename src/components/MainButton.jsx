@@ -14,24 +14,25 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const CompleteButtonWrapper = styled.div`
-  position: fixed;
-  bottom: 40px;
-  width: calc(100% - 40px);
-`;
+// const CompleteButtonWrapper = styled.div`
+//   position: fixed;
+//   bottom: 40px;
+//   width: calc(100% - 40px);
+// `;
 
-const MainButton = ({ className, text, onClick, fixed }) => {
+const MainButton = ({ className, text, onClick }) => {
   const buttonElement = (
     <Button className={className} onClick={onClick}>
       <div className="title3">{text}</div>
     </Button>
   );
 
-  return fixed ? (
-    <CompleteButtonWrapper>{buttonElement}</CompleteButtonWrapper>
-  ) : (
-    buttonElement
-  );
+  return buttonElement;
+  // return fixed ? (
+  //   <CompleteButtonWrapper>{buttonElement}</CompleteButtonWrapper>
+  // ) : (
+  //   buttonElement
+  // );
 };
 
 export default MainButton;

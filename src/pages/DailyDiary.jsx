@@ -10,6 +10,7 @@ const DailyDiary = () => {
     chatMessage,
     isLoading,
     isListening,
+    isTTSPlaying,
     handleMicClick,
     audioRef,
   } = useDiaryChat(startDailyDiary, "daily");
@@ -29,12 +30,13 @@ const DailyDiary = () => {
         <CharacterImage src="/assets/images/dailyCat.svg" alt="Character" />
 
         {!hasStarted ? (
-          <StartButton onClick={handleStart}>일기 시작</StartButton>
+          <StartButton className="title3" onClick={handleStart}>
+            일기 시작
+          </StartButton>
         ) : (
           <Subtitle>{isLoading ? "로딩 중..." : chatMessage}</Subtitle>
         )}
-
-        {hasStarted && (
+        {hasStarted && !isTTSPlaying && (
           <OuterCircle>
             <InnerCircle onClick={handleMicClick}>
               {isListening ? (
@@ -89,6 +91,7 @@ const CharacterImage = styled.img`
   width: auto;
   height: auto;
   z-index: 1;
+  margin-top: 2rem;
 `;
 
 const ContentWrapper = styled.div`
@@ -107,7 +110,7 @@ const Subtitle = styled.div`
   position: relative;
   width: 100%;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #212121;
   font-weight: bold;
   z-index: 2;
@@ -126,7 +129,7 @@ const OuterCircle = styled.div`
   left: 50%;
   transform: translateX(-50%);
   position: absolute;
-  bottom: 20%;
+  bottom: 15%;
 `;
 const InnerCircle = styled.div`
   width: 70px;
@@ -140,6 +143,7 @@ const InnerCircle = styled.div`
 `;
 
 const StartButton = styled.button`
+  margin-top: 2rem;
   width: 100%;
   height: 3.5rem;
   padding: 0.5rem 1rem;

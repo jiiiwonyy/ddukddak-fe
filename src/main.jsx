@@ -6,6 +6,7 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/config/configStore.js";
+import "./pretendard.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

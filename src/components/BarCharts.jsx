@@ -34,7 +34,8 @@ export default function BarCharts() {
 
   // monthLabel: "이번달" 또는 "지난달"
   function convertStatsToChartData(stats, monthLabel) {
-    return Object.entries(stats.categories).map(([key, cat]) => ({
+    if (!stats || !stats.stats) return []; // stats.stats가 실제 데이터!
+    return Object.entries(stats.stats).map(([key, cat]) => ({
       categoryKey: key,
       name: cat.name,
       [monthLabel]: cat.avg_accuracy,

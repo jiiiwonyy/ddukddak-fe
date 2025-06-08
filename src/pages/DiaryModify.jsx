@@ -5,12 +5,13 @@ import styled from "styled-components";
 import MainButton from "../components/MainButton";
 import { postDiary } from "../api/diary"; // 등록용 함수만 사용
 import { useNavigate, useLocation } from "react-router-dom";
+import { getLocalDateString } from "../api/time";
 
 const DiaryModify = () => {
   const location = useLocation();
   const diary = location.state?.diary;
   const category = location.state?.category;
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalDateString();
   const [diaryDate] = useState(today);
 
   const [title, setTitle] = useState(diary?.title || "");
@@ -33,7 +34,8 @@ const DiaryModify = () => {
       console.log({ diaryDate, category, title, body });
 
       alert("일기 등록 성공");
-      navigate("/retrospect");
+      if (category == "diary") navigate("/retrospect");
+      else navigate("/home");
     } catch (e) {
       console.error(e);
       alert("일기 등록 실패");
