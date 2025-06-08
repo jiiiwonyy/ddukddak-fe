@@ -204,13 +204,14 @@ export const useRetrospectChat = () => {
           },
         ]);
         setSubtitle(res.data.feedback); // 자막 먼저!
+        setHint(res.data.hint || "");
         setIsLoading(false); // 로딩 해제
         await playTTSWithFlag(res.data.feedback); // TTS
         setWaitingRetry(true);
-        setHint(res.data.hint || "");
+
         return;
       }
-
+      setHint("");
       // 정답일 때만 다음 질문으로 넘어감
       setWaitingRetry(false);
 
