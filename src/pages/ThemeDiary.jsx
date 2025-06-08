@@ -11,6 +11,7 @@ const ThemeDiary = () => {
     chatMessage,
     isLoading,
     isListening,
+    isTTSPlaying,
     handleMicClick,
     audioRef,
   } = useDiaryChat(startThemeDiary, "topic");
@@ -38,7 +39,7 @@ const ThemeDiary = () => {
         ) : (
           <Subtitle>{isLoading ? "로딩 중..." : chatMessage}</Subtitle>
         )}
-        {hasStarted && (
+        {hasStarted && !isTTSPlaying && (
           <OuterCircle>
             <InnerCircle onClick={handleMicClick}>
               {isListening ? (

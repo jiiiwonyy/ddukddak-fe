@@ -72,11 +72,21 @@ export const useRetrospectChat = () => {
   const [subtitle, setSubtitle] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [sessionFinished, setSessionFinished] = useState(false);
   const [finalFeedback, setFinalFeedback] = useState("");
   const [hint, setHint] = useState("");
   const [waitingRetry, setWaitingRetry] = useState(false);
+
+  const playTTSWithFlag = async (text) => {
+    setIsTTSPlaying(true);
+    try {
+      await playTTS(text);
+    } finally {
+      setIsTTSPlaying(false);
+    }
+  };
 
   // 대화 turn별로 쌓음 (질문, 답, 피드백, score, type 등)
   const [retrospectResults, setRetrospectResults] = useState([]);
@@ -102,7 +112,7 @@ export const useRetrospectChat = () => {
 
       setSubtitle(qArr[0].question); // 👉 자막 먼저!
       setIsLoading(false); // 👉 로딩 해제 바로!
-      await playTTS(qArr[0].question); // 👉 TTS 재생
+      await playTTSWithFlag(qArr[0].question); // 👉 TTS 재생
     } catch {
       setSubtitle("❌ 세션 시작 실패");
       setIsLoading(false);
@@ -111,7 +121,7 @@ export const useRetrospectChat = () => {
 
   // 마이크 녹음
   const startRecording = async () => {
-    if (isListening) return;
+    if (isListening || isTTSPlaying) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new window.MediaRecorder(stream);
@@ -195,7 +205,7 @@ export const useRetrospectChat = () => {
         ]);
         setSubtitle(res.data.feedback); // 자막 먼저!
         setIsLoading(false); // 로딩 해제
-        await playTTS(res.data.feedback); // TTS
+        await playTTSWithFlag(res.data.feedback); // TTS
         setWaitingRetry(true);
         setHint(res.data.hint || "");
         return;
@@ -221,7 +231,7 @@ export const useRetrospectChat = () => {
 
         setSubtitle("모든 질문이 완료되었습니다!");
         setIsLoading(false);
-        await playTTS("모든 질문이 완료되었습니다!");
+        await playTTSWithFlag("모든 질문이 완료되었습니다!");
         return;
       }
 
@@ -245,10 +255,10 @@ export const useRetrospectChat = () => {
 
       setSubtitle(res.data.feedback);
       setIsLoading(false);
-      await playTTS(res.data.feedback);
+      await playTTSWithFlag(res.data.feedback);
 
       setSubtitle(res.data.next_question.question);
-      await playTTS(res.data.next_question.question);
+      await playTTSWithFlag(res.data.next_question.question);
     } catch {
       setSubtitle("❌ 서버 오류, 다시 시도!");
       setIsLoading(false);
@@ -307,6 +317,7 @@ export const useRetrospectChat = () => {
     isLoading,
     sessionStarted,
     sessionFinished,
+    isTTSPlaying,
     startSession,
     handleMicClick,
     endSession,

@@ -10,6 +10,7 @@ export const useDiaryChat = (startFunction, category) => {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const navigate = useNavigate();
@@ -25,6 +26,15 @@ export const useDiaryChat = (startFunction, category) => {
     };
   }, []);
 
+  const playTTSWithFlag = async (text) => {
+    setIsTTSPlaying(true);
+    try {
+      await playTTS(text);
+    } finally {
+      setIsTTSPlaying(false);
+    }
+  };
+
   const startConversation = async () => {
     setIsLoading(true);
     try {
@@ -39,7 +49,7 @@ export const useDiaryChat = (startFunction, category) => {
       setChatMessage(message);
       setIsLoading(false); // 🔥 응답 오자마자 해제!
       try {
-        await playTTS(message);
+        await playTTSWithFlag(message);
       } catch {
         console.error("TTS 오류:", message);
       }
@@ -48,7 +58,7 @@ export const useDiaryChat = (startFunction, category) => {
       setChatMessage(errorMessage);
       setIsLoading(false); // 🔥 에러도 바로 해제!
       try {
-        await playTTS(errorMessage);
+        await playTTSWithFlag(errorMessage);
       } catch {
         console.error("TTS 오류:", errorMessage);
       }
@@ -56,7 +66,7 @@ export const useDiaryChat = (startFunction, category) => {
   };
 
   const startRecording = async () => {
-    if (isProcessing) return;
+    if (isProcessing || isTTSPlaying) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -85,7 +95,7 @@ export const useDiaryChat = (startFunction, category) => {
       const errorMessage = "음성 녹음을 시작할 수 없습니다.";
       setChatMessage(errorMessage);
       try {
-        await playTTS(errorMessage);
+        await playTTSWithFlag(errorMessage);
       } catch {
         console.error("TTS 오류:", errorMessage);
       }
@@ -111,7 +121,7 @@ export const useDiaryChat = (startFunction, category) => {
       const errorMessage = "음성 인식에 실패했습니다. 다시 시도해주세요.";
       setChatMessage(errorMessage);
       try {
-        await playTTS(errorMessage);
+        await playTTSWithFlag(errorMessage);
       } catch {
         console.error("TTS 오류:", errorMessage);
       }
@@ -145,7 +155,7 @@ export const useDiaryChat = (startFunction, category) => {
       setChatMessage(data.response);
 
       // 음성 재생은 비동기로 처리
-      playTTS(data.response).catch((err) =>
+      playTTSWithFlag(data.response).catch((err) =>
         console.error("TTS 재생 오류:", err)
       );
     } catch (err) {
@@ -157,7 +167,7 @@ export const useDiaryChat = (startFunction, category) => {
       setChatMessage(errorMessage);
 
       // 에러 메시지 음성 재생
-      playTTS(errorMessage).catch((err) =>
+      playTTSWithFlag(errorMessage).catch((err) =>
         console.error("TTS 재생 오류:", err)
       );
     }
@@ -169,6 +179,7 @@ export const useDiaryChat = (startFunction, category) => {
     isListening,
     isProcessing,
     isLoading,
+    isTTSPlaying,
     handleMicClick: () => {
       if (isListening) stopRecording();
       else startRecording();

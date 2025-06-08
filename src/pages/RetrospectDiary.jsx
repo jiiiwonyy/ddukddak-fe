@@ -11,6 +11,7 @@ const RetrospectDiary = () => {
     sessionStarted,
     startSession,
     handleMicClick,
+    isTTSPlaying,
     hint,
   } = useRetrospectChat();
 
@@ -34,15 +35,17 @@ const RetrospectDiary = () => {
             <Subtitle>{isLoading ? "로딩 중..." : subtitle}</Subtitle>
             {hint && <HintBar>{hint}</HintBar>}
             {/* 마이크 버튼 */}
-            <OuterCircle>
-              <InnerCircle onClick={handleMicClick} $listening={isListening}>
-                {isListening ? (
-                  <BsMicFill size={32} color="#fff" />
-                ) : (
-                  <BsMic size={32} color="#fff" />
-                )}
-              </InnerCircle>
-            </OuterCircle>
+            {!isTTSPlaying && (
+              <OuterCircle>
+                <InnerCircle onClick={handleMicClick} $listening={isListening}>
+                  {isListening ? (
+                    <BsMicFill size={32} color="#fff" />
+                  ) : (
+                    <BsMic size={32} color="#fff" />
+                  )}
+                </InnerCircle>
+              </OuterCircle>
+            )}
           </>
         )}
       </ContentWrapper>
