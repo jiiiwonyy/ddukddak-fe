@@ -94,25 +94,19 @@ export const useRetrospectChat = () => {
       setQuestions(qArr);
       setDiaryContent(res.data.diary_content);
       setQuestionIndex(0);
-      setRetrospectResults([]);
-      setSessionStarted(true);
-      setSessionFinished(false);
-
-      // 첫 질문을 메시지로 기록 (type 포함)
       setRetrospectResults([
         { sender_type: "BOT", message: qArr[0].question, type: qArr[0].type },
       ]);
-      setSubtitle(qArr[0].question);
-      await new Promise((resolve) =>
-        requestAnimationFrame(() => {
-          requestAnimationFrame(resolve);
-        })
-      );
-      await playTTS(qArr[0].question);
+      setSessionStarted(true);
+      setSessionFinished(false);
+
+      setSubtitle(qArr[0].question); // 👉 자막 먼저!
+      setIsLoading(false); // 👉 로딩 해제 바로!
+      await playTTS(qArr[0].question); // 👉 TTS 재생
     } catch {
       setSubtitle("❌ 세션 시작 실패");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   // 마이크 녹음
@@ -199,11 +193,11 @@ export const useRetrospectChat = () => {
             type: currType,
           },
         ]);
+        setSubtitle(res.data.feedback); // 자막 먼저!
+        setIsLoading(false); // 로딩 해제
+        await playTTS(res.data.feedback); // TTS
         setWaitingRetry(true);
         setHint(res.data.hint || "");
-        setSubtitle(res.data.feedback);
-        await playTTS(res.data.feedback);
-        setIsLoading(false);
         return;
       }
 
@@ -226,10 +220,8 @@ export const useRetrospectChat = () => {
         setSessionFinished(true);
 
         setSubtitle("모든 질문이 완료되었습니다!");
-        await playTTS("모든 질문이 완료되었습니다!");
-
-        // endSession은 useEffect에서 sessionFinished 변화 감지로 실행
         setIsLoading(false);
+        await playTTS("모든 질문이 완료되었습니다!");
         return;
       }
 
@@ -252,12 +244,11 @@ export const useRetrospectChat = () => {
       setQuestionIndex((prev) => prev + 1);
 
       setSubtitle(res.data.feedback);
-      await playTTS(res.data.feedback);
-      setSubtitle(res.data.next_question.question);
-
-      await playTTS(res.data.next_question.question);
-
       setIsLoading(false);
+      await playTTS(res.data.feedback);
+
+      setSubtitle(res.data.next_question.question);
+      await playTTS(res.data.next_question.question);
     } catch {
       setSubtitle("❌ 서버 오류, 다시 시도!");
       setIsLoading(false);

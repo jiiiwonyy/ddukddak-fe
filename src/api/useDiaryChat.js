@@ -3,7 +3,6 @@ import { useTTS } from "../api/useTTS";
 import { sttRequest } from "../api/useSTT"; // Assuming this is the correct import path
 import dailyInstance from "./dailyInstance";
 import { useNavigate } from "react-router-dom";
-import { flushSync } from "react-dom";
 
 export const useDiaryChat = (startFunction, category) => {
   const { audioRef, playTTS } = useTTS();
@@ -36,7 +35,9 @@ export const useDiaryChat = (startFunction, category) => {
           : response.data.response ||
             response.data.message ||
             "응답이 없습니다.";
+
       setChatMessage(message);
+      setIsLoading(false); // 🔥 응답 오자마자 해제!
       try {
         await playTTS(message);
       } catch {
@@ -45,13 +46,12 @@ export const useDiaryChat = (startFunction, category) => {
     } catch {
       const errorMessage = "메시지를 불러오는데 실패했습니다.";
       setChatMessage(errorMessage);
+      setIsLoading(false); // 🔥 에러도 바로 해제!
       try {
         await playTTS(errorMessage);
       } catch {
         console.error("TTS 오류:", errorMessage);
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -117,9 +117,9 @@ export const useDiaryChat = (startFunction, category) => {
       }
     }
   };
-
   const sendMessage = async (message) => {
     if (!message || !message.trim()) return;
+
     try {
       const response = await dailyInstance.post("/ask", { message });
 
@@ -138,27 +138,28 @@ export const useDiaryChat = (startFunction, category) => {
         }, 2000);
         return data.diary;
       }
+
       if (!data.response) throw new Error("봇 응답이 없습니다.");
 
+      // 자막 즉시 업데이트
       setChatMessage(data.response);
-      try {
-        flushSync(() => {
-          setChatMessage(message);
-        });
-        await playTTS(data.response);
-      } catch {
-        console.error("TTS 오류:", data.response);
-      }
+
+      // 음성 재생은 비동기로 처리
+      playTTS(data.response).catch((err) =>
+        console.error("TTS 재생 오류:", err)
+      );
     } catch (err) {
       console.error(err);
       const errorMessage =
         "메시지 전송에 실패했습니다. 잠시 후 다시 시도해주세요.";
+
+      // 에러 메시지 자막 표시
       setChatMessage(errorMessage);
-      try {
-        await playTTS(errorMessage);
-      } catch {
-        console.error("TTS 오류:", errorMessage);
-      }
+
+      // 에러 메시지 음성 재생
+      playTTS(errorMessage).catch((err) =>
+        console.error("TTS 재생 오류:", err)
+      );
     }
   };
 
