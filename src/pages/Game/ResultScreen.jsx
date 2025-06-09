@@ -49,13 +49,13 @@ const ResultScreen = ({ results }) => {
           {results.map((r, idx) => (
             <ProblemItem key={idx}>
               <div className="title3">문제 {idx + 1}</div>{" "}
-              <div className="body3">{r.question.toString()}</div>
+              <div className="body2">{r.question.toString()}</div>
               <div className="title3"> 입력 </div>{" "}
-              <div className="body3">{r.answer}</div>
+              <div className="body2">{r.answer}</div>
               <div className="title3"> 정답</div>{" "}
-              <div className="body3">{r.correct ? "⭕" : "❌"}</div>
+              <div className="body2">{r.correct ? "⭕" : "❌"}</div>
               <div className="title3"> 소요시간</div>{" "}
-              <div className="body3">{Number(r.time).toLocaleString()} ms</div>
+              <div className="body2">{Number(r.time).toLocaleString()} ms</div>
             </ProblemItem>
           ))}
         </ProblemList>
