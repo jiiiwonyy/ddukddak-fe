@@ -43,10 +43,10 @@ export const answerRetrospectDiary = (payload) => {
   return dailyInstance.post(`/recall-session/answer`, payload);
 };
 
-export const sendDailyDiaryToAI = (title, body, theme) => {
-  return dailyInstance.post("/theme/save-diary", { title, body, theme });
+export const sendDailyDiaryToAI = (title, body) => {
+  return dailyInstance.post("/theme/save-diary", { title, body });
 };
 
-export const sendThemeDiaryToAI = (title, body) => {
-  return dailyInstance.post("/save-diary", { title, body });
+export const sendThemeDiaryToAI = (title, body, theme) => {
+  return dailyInstance.post("/save-diary", { title, body, theme });
 };
