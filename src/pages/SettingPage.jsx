@@ -33,11 +33,7 @@ const SettingPage = () => {
 
   return (
     <PageWrapper>
-      <Header
-        title="나의 정보 수정"
-        menuIcon={BiChevronLeft}
-        navigateTo="/mypage"
-      />
+      <Header title="나의 정보" menuIcon={BiChevronLeft} navigateTo="/mypage" />
       <SettingPageWrapper>
         <div className="title3">이름</div>
         <InfoDiv className="body3">{userName}</InfoDiv>

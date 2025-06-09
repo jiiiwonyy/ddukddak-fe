@@ -8,8 +8,8 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { getDiaryDetail } from "../api/diary"; // 반드시 실제 경로에 맞게 import!
 
 const CATEGORY_MAP = {
-  TIME: "시간 지남력",
-  PLACE: "장소 지남력",
+  TIME_ORIENTATION: "시간 지남력",
+  PLACE_ORIENTATION: "장소 지남력",
   MEMORY: "기억력",
 };
 
@@ -20,7 +20,7 @@ const RetrospectDetail = () => {
 
   // (1) 초기값: state에서 가져오고, 없으면 빈 값
   const [results, setResults] = useState(location.state?.results || []);
-  const [feedback, setFeedback] = useState(location.state?.feedback || "");
+  // const [feedback, setFeedback] = useState(location.state?.feedback || "");
   const [scores, setScores] = useState(location.state?.scores || []);
   const [questionsArr, setQuestionsArr] = useState(
     location.state?.questions || []
@@ -34,7 +34,7 @@ const RetrospectDetail = () => {
         .then((data) => {
           // data는 axios response 전체, data.data가 실제 일기 데이터!
           setResults(data.data.chat_messages || []);
-          setFeedback(data.data.final_feedback || "");
+          // setFeedback(data.data.final_feedback || "");
           setScores(data.data.memory_scores || []);
           // questionsArr 등도 data.data.~~에서!
           if (Array.isArray(data.data.qnas)) {
@@ -109,16 +109,14 @@ const RetrospectDetail = () => {
             </MessageBubble>
           );
         })}
-
-        {/* 마지막 총평 피드백 */}
+        {/* 마지막 총평 피드백
         {feedback && (
           <MessageBubble $isUser={false}>
             <b>최종 피드백</b>
             <br />
             {feedback}
           </MessageBubble>
-        )}
-
+        )} */}
         {/* 최종 점수 요약 */}
         {scores && scores.length > 0 && (
           <MessageBubble $isUser={false}>
@@ -132,7 +130,6 @@ const RetrospectDetail = () => {
             ))}
           </MessageBubble>
         )}
-
         <MainButton
           text="홈으로 돌아가기"
           onClick={() => {

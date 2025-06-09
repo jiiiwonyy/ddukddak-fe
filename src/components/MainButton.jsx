@@ -12,13 +12,9 @@ const Button = styled.button`
   border-radius: 2rem;
   border: none;
   cursor: pointer;
+  margin-top: 10px;
+  margin-bottome: 10px;
 `;
-
-// const CompleteButtonWrapper = styled.div`
-//   position: fixed;
-//   bottom: 40px;
-//   width: calc(100% - 40px);
-// `;
 
 const MainButton = ({ className, text, onClick }) => {
   const buttonElement = (
@@ -28,11 +24,6 @@ const MainButton = ({ className, text, onClick }) => {
   );
 
   return buttonElement;
-  // return fixed ? (
-  //   <CompleteButtonWrapper>{buttonElement}</CompleteButtonWrapper>
-  // ) : (
-  //   buttonElement
-  // );
 };
 
 export default MainButton;

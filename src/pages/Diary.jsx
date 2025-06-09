@@ -84,6 +84,7 @@ const DiaryTitleInput = styled.div`
 `;
 
 const DiaryTitleContent = styled.div`
+  white-space: pre-line;
   display: flex;
   flex-direction: column;
   padding: 20px;
