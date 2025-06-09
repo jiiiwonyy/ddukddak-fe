@@ -11,6 +11,7 @@ export const useDiaryChat = (startFunction, category) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+  const [chatCount, setChatCount] = useState(0);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const navigate = useNavigate();
@@ -127,12 +128,13 @@ export const useDiaryChat = (startFunction, category) => {
       }
     }
   };
+
   const sendMessage = async (message) => {
     if (!message || !message.trim()) return;
 
     try {
       const response = await dailyInstance.post("/ask", { message });
-
+      setChatCount((c) => c + 1);
       if (response.status !== 200) {
         throw new Error(
           `메시지 전송 서버 오류 (${response.status}): ${response.statusText}`
@@ -173,6 +175,10 @@ export const useDiaryChat = (startFunction, category) => {
     }
   };
 
+  const endDiary = async () => {
+    await sendMessage("그만 할래"); // 서버가 종료 메시지로 인식할 수 있는 문장!
+  };
+
   return {
     audioRef,
     chatMessage,
@@ -180,10 +186,13 @@ export const useDiaryChat = (startFunction, category) => {
     isProcessing,
     isLoading,
     isTTSPlaying,
+    chatCount,
     handleMicClick: () => {
       if (isListening) stopRecording();
       else startRecording();
     },
     startConversation,
+    endDiary,
+    sendMessage,
   };
 };

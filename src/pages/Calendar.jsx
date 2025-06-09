@@ -109,7 +109,9 @@ const DiaryList = styled.div`
   flex-direction: column;
   background-color: #fff;
 
-  margin: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-bottom: 70px;
   overflow: hidden;
   padding: 10px;
   position: relative;

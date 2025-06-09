@@ -34,7 +34,7 @@ const DiaryModify = () => {
       console.log({ diaryDate, category, title, body });
 
       alert("일기 등록 성공");
-      if (category == "diary") navigate("/retrospect");
+      if (category == "daily") navigate("/retrospect");
       else navigate("/home");
     } catch (e) {
       console.error(e);
@@ -45,7 +45,7 @@ const DiaryModify = () => {
   return (
     <PageWrapper>
       <Header
-        title={category === "daily" ? "일상일기 등록" : "주제일기 등록"}
+        title={category === "daily" ? "일상일기 수정하기" : "주제일기 수정하기"}
       />
       <PageBody>
         <DiaryTitle
@@ -60,11 +60,11 @@ const DiaryModify = () => {
           onChange={(e) => setBody(e.target.value)}
           placeholder="내용을 입력하세요"
         />
-
-        <DiaryDate className="body1">{today}</DiaryDate>
-        <ModifyButtonWrapper>
-          <MainButton text="일기 등록 완료" onClick={handleSubmit} />
-        </ModifyButtonWrapper>
+        <DateWrapper>
+          <DiaryDate className="body1">{today}</DiaryDate>
+          <div className="body1">제목과 내용은 클릭해서 수정할 수 있어요!</div>
+        </DateWrapper>
+        <MainButton text="일기 등록 완료" onClick={handleSubmit} />
       </PageBody>
     </PageWrapper>
   );
@@ -91,7 +91,7 @@ const DiaryBox = styled.textarea`
   position: relative;
   background-color: #f3f7ff;
   border-radius: 1rem;
-  min-height: 300px;
+  min-height: 350px;
   width: 100%;
   border: none;
   outline: none;
@@ -104,17 +104,15 @@ const PageBody = styled.div`
   padding: 20px;
   position: relative;
 `;
-const DiaryDate = styled.div`
+
+const DateWrapper = styled.div`
   display: flex;
+  justify-content: space-between;
   margin-top: 1rem;
 `;
-const ModifyButtonWrapper = styled.div`
-  position: fixed;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  padding: 0 1.5rem;
+
+const DiaryDate = styled.div`
+  display: flex;
 `;
 
 export default DiaryModify;

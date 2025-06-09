@@ -109,7 +109,7 @@ const UserInfo = () => {
         {!isNameValid && submitAttempted && (
           <ErrorMsg>이름을 입력해주세요.</ErrorMsg>
         )}
-
+        <div className="title3">생년월일</div>
         <StyledInput
           type="date"
           className="body3"

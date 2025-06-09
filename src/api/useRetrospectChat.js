@@ -78,15 +78,19 @@ export const useRetrospectChat = () => {
   const [finalFeedback, setFinalFeedback] = useState("");
   const [hint, setHint] = useState("");
   const [waitingRetry, setWaitingRetry] = useState(false);
+  const [attempt, setAttempt] = useState(1);
 
-  const playTTSWithFlag = async (text) => {
-    setIsTTSPlaying(true);
-    try {
-      await playTTS(text);
-    } finally {
-      setIsTTSPlaying(false);
-    }
-  };
+  const playTTSWithFlag = useCallback(
+    async (text) => {
+      setIsTTSPlaying(true);
+      try {
+        await playTTS(text);
+      } finally {
+        setIsTTSPlaying(false);
+      }
+    },
+    [playTTS]
+  );
 
   // 대화 turn별로 쌓음 (질문, 답, 피드백, score, type 등)
   const [retrospectResults, setRetrospectResults] = useState([]);
@@ -184,15 +188,60 @@ export const useRetrospectChat = () => {
         question_index: questionIndex,
         questions,
         diary_content: diaryContent,
+        attempt,
       });
+
+      if (typeof res.data.question_index === "number") {
+        setQuestionIndex(res.data.question_index);
+      }
+      if (typeof res.data.attempt === "number") {
+        setAttempt(res.data.attempt);
+      }
 
       const currType = questions[questionIndex]?.type || null;
       const isCorrect =
         res.data.is_correct === true || res.data.diagnosis === "correct";
       const isLastQuestion = !res.data.next_question;
 
+      // === (1) 오답 3회 시 (res.data.message 존재) ===
+      if (!isCorrect && res.data.message) {
+        // 오답 3회시: 피드백 TTS 건너뛰고 바로 message만!
+        setRetrospectResults((prev) =>
+          [
+            ...prev,
+            { sender_type: "USER", message: userAnswer },
+            {
+              sender_type: "BOT",
+              message: res.data.feedback,
+              score: res.data.score,
+              type: currType,
+            },
+            // next_question도 바로 추가
+            res.data.next_question
+              ? {
+                  sender_type: "BOT",
+                  message: res.data.next_question.question,
+                  type: res.data.next_question.type,
+                }
+              : null,
+          ].filter(Boolean)
+        );
+
+        setSubtitle(res.data.message);
+        setWaitingRetry(false); // retry모드 종료!
+        setAttempt(1); // 시도 횟수 리셋
+        setIsLoading(false);
+        await playTTSWithFlag(res.data.message);
+
+        if (res.data.next_question) {
+          setSubtitle(res.data.next_question.question);
+          await playTTSWithFlag(res.data.next_question.question);
+          setQuestionIndex(res.data.question_index ?? questionIndex + 1);
+        }
+      }
+
+      // === (2) 오답 3회 미만 ===
       if (!isCorrect) {
-        // 오답이면: 피드백 주고 재시도 (같은 질문 유지)
         setRetrospectResults((prev) => [
           ...prev,
           { sender_type: "USER", message: userAnswer },
@@ -203,20 +252,20 @@ export const useRetrospectChat = () => {
             type: currType,
           },
         ]);
-        setSubtitle(res.data.feedback); // 자막 먼저!
+        setSubtitle(res.data.feedback);
         setHint(res.data.hint || "");
-        setIsLoading(false); // 로딩 해제
-        await playTTSWithFlag(res.data.feedback); // TTS
+        setIsLoading(false);
+        await playTTSWithFlag(res.data.feedback);
         setWaitingRetry(true);
-
         return;
       }
+
+      // === (3) 정답 ===
       setHint("");
-      // 정답일 때만 다음 질문으로 넘어감
       setWaitingRetry(false);
+      setAttempt(1);
 
       if (isLastQuestion) {
-        // 마지막 질문에서 정답을 맞춘 경우
         setRetrospectResults((prev) => [
           ...prev,
           { sender_type: "USER", message: userAnswer },
@@ -228,11 +277,16 @@ export const useRetrospectChat = () => {
           },
         ]);
         setFinalFeedback(res.data.feedback_summary || res.data.feedback || "");
-        setSessionFinished(true);
 
-        setSubtitle("모든 질문이 완료되었습니다!");
+        setSubtitle(res.data.feedback);
         setIsLoading(false);
-        await playTTSWithFlag("모든 질문이 완료되었습니다!");
+        await playTTSWithFlag(res.data.feedback);
+
+        const finishMsg = "모든 질문이 완료되었습니다!";
+        setSubtitle(finishMsg);
+        setIsLoading(false);
+        await playTTSWithFlag(finishMsg);
+        setSessionFinished(true);
         return;
       }
 
@@ -252,7 +306,6 @@ export const useRetrospectChat = () => {
           type: res.data.next_question.type,
         },
       ]);
-      setQuestionIndex((prev) => prev + 1);
 
       setSubtitle(res.data.feedback);
       setIsLoading(false);
@@ -306,7 +359,6 @@ export const useRetrospectChat = () => {
   // 마지막 질문 처리 후 sessionFinished가 true가 됨
   useEffect(() => {
     if (sessionFinished) {
-      // 이 시점에 retrospectResults는 최신값!
       endSession();
     }
   }, [sessionFinished, endSession]);

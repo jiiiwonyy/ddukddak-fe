@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { BsMic, BsMicFill } from "react-icons/bs";
 import { useRetrospectChat } from "../api/useRetrospectChat";
+import { useMemo } from "react";
 
 const RetrospectDiary = () => {
   const {
@@ -12,8 +13,16 @@ const RetrospectDiary = () => {
     startSession,
     handleMicClick,
     isTTSPlaying,
-    hint,
   } = useRetrospectChat();
+
+  const subtitleFontSize = useMemo(() => {
+    if (!subtitle) return "1.3rem";
+    const len = subtitle.length;
+    if (len <= 30) return "1.5rem";
+    if (len <= 60) return "1.3rem";
+    if (len <= 80) return "1.2rem";
+    return "1.2rem"; // 그 이상 더 줄일 수도 있음
+  }, [subtitle]);
 
   return (
     <PageWrapper>
@@ -36,8 +45,9 @@ const RetrospectDiary = () => {
         ) : (
           <>
             {/* 캐릭터의 말(자막) */}
-            <Subtitle>{isLoading ? "로딩 중..." : subtitle}</Subtitle>
-            {hint && <HintBar>{hint}</HintBar>}
+            <Subtitle style={{ fontSize: subtitleFontSize }}>
+              {isLoading ? "로딩 중..." : subtitle}
+            </Subtitle>
             {/* 마이크 버튼 */}
             {!isTTSPlaying && (
               <OuterCircle>
@@ -94,7 +104,7 @@ const CharacterImage = styled.img`
   top: 0%;
   left: 50%;
   transform: translateX(-50%);
-  width: auto; // 캐릭터 이미지 크기
+  width: 70%; // 캐릭터 이미지 크기
   height: auto;
   z-index: 1;
 `;
@@ -112,14 +122,19 @@ const ContentWrapper = styled.div`
 `;
 
 const Subtitle = styled.div`
-  position: relative;
-  bottom: 0%;
   width: 100%;
   text-align: center;
-  font-size: 1.5rem;
   color: #212121;
   font-weight: bold;
   z-index: 2;
+  margin-top: 20px;
+  word-break: keep-all;
+  line-height: 1.5;
+  min-height: 2.2em; // 적당한 높이
+  max-height: 20vh; // 너무 길지 않게 (상황에 따라 조절)
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const HintBar = styled.div`
@@ -128,8 +143,8 @@ const HintBar = styled.div`
 `;
 
 const OuterCircle = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background-color: rgb(247, 202, 191);
   border-radius: 50%;
   display: flex;
@@ -142,8 +157,8 @@ const OuterCircle = styled.div`
   bottom: 15%;
 `;
 const InnerCircle = styled.div`
-  width: 70px;
-  height: 70px;
+  width: 66px;
+  height: 66px;
   background-color: rgb(206, 137, 120);
   border-radius: 50%;
   display: flex;
