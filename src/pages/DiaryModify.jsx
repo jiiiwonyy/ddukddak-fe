@@ -40,7 +40,7 @@ const DiaryModify = () => {
         await sendDailyDiaryToAI(title, body);
       } else if (category === "topic") {
         // 주제일기일 때 AI 서버 전송
-        await sendThemeDiaryToAI(title, body);
+        await sendThemeDiaryToAI(title, body, "theme");
       }
       alert("일기 등록 성공");
       if (category == "daily") navigate("/retrospect");
