@@ -216,14 +216,6 @@ export const useRetrospectChat = () => {
               score: res.data.score,
               type: currType,
             },
-            // next_question도 바로 추가
-            res.data.next_question
-              ? {
-                  sender_type: "BOT",
-                  message: res.data.next_question.question,
-                  type: res.data.next_question.type,
-                }
-              : null,
           ].filter(Boolean)
         );
 
@@ -233,10 +225,18 @@ export const useRetrospectChat = () => {
         setIsLoading(false);
         await playTTSWithFlag(res.data.message);
 
-        if (res.data.next_question) {
+        if (isLastQuestion) {
+          // 세션 종료 처리
+          const finishMsg = "모든 질문이 완료되었습니다!";
+          setSubtitle(finishMsg);
+          await playTTSWithFlag(finishMsg);
+          setSessionFinished(true);
+          return;
+        } else if (res.data.next_question) {
           setSubtitle(res.data.next_question.question);
           await playTTSWithFlag(res.data.next_question.question);
           setQuestionIndex(res.data.question_index ?? questionIndex + 1);
+          return;
         }
       }
 
