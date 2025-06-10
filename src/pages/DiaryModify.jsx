@@ -43,6 +43,8 @@ const DiaryModify = () => {
         // 주제일기일 때 AI 서버 전송
         await sendThemeDiaryToAI(title, body, theme);
         navigate("/home");
+        console.log(title, body, theme);
+
       }
       alert("일기 등록 성공");
     } catch (e) {
