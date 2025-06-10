@@ -5,6 +5,7 @@ import { startDailyDiary } from "../api/diary";
 import { useDiaryChat } from "../api/useDiaryChat"; // Assuming this is the correct import path
 import CustomAlert from "../components/AlertModal";
 import { FiLogOut } from "react-icons/fi";
+import Spinner from "../components/Spinner";
 
 const DailyDiary = () => {
   const {
@@ -25,6 +26,7 @@ const DailyDiary = () => {
   const [alertMsg, setAlertMsg] = useState("");
   const [useTextInput, setUseTextInput] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [isEnding, setIsEnding] = useState(false);
 
   const handleInputKeyDown = (e) => {
     if (e.key === "Enter" && inputValue.trim()) {
@@ -38,13 +40,18 @@ const DailyDiary = () => {
     startConversation();
   };
 
-  const handleEndDiary = () => {
+  const handleEndDiary = async () => {
     if (chatCount < 5) {
       setAlertMsg("아직 대화 내용이 부족해요");
       setAlertOpen(true);
       return;
     }
-    endDiary();
+    setIsEnding(true);
+    try {
+      await endDiary();
+    } finally {
+      setIsEnding(false);
+    }
   };
 
   const subtitleFontSize = useMemo(() => {
@@ -57,72 +64,92 @@ const DailyDiary = () => {
   }, [chatMessage]);
 
   return (
-    <PageWrapper>
-      <FixedBackground />
-      <Title className="title1">일상일기</Title>
-      {hasStarted && (
-        <EndButton onClick={handleEndDiary}>
-          <FiLogOut size={24} />
-        </EndButton>
+    <>
+      {isEnding && (
+        <Overlay>
+          <Spinner />
+        </Overlay>
       )}
-      <ContentWrapper>
-        <CharacterImage src="/assets/images/dailyCat.svg" alt="Character" />
+      <PageWrapper>
+        <FixedBackground />
+        <Title className="title1">일상일기</Title>
+        {hasStarted && (
+          <EndButton onClick={handleEndDiary}>
+            <FiLogOut size={24} />
+          </EndButton>
+        )}
+        <ContentWrapper>
+          <CharacterImage src="/assets/images/dailyCat.svg" alt="Character" />
 
-        {!hasStarted ? (
-          <StartButton className="title3" onClick={handleStart}>
-            일기 시작
-          </StartButton>
-        ) : (
-          <Subtitle style={{ fontSize: subtitleFontSize }}>
-            {isLoading ? "로딩 중..." : chatMessage}
-          </Subtitle>
-        )}
-        {hasStarted && !isTTSPlaying && (
-          <>
-            {useTextInput ? (
-              // ───── 텍스트 입력 모드 ─────
-              <TextInputWrapper>
-                <TextInput
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  placeholder="메시지를 입력하고 Enter"
-                />
-                <ToggleLink onClick={() => setUseTextInput(false)}>
-                  마이크로 입력하기
-                </ToggleLink>
-              </TextInputWrapper>
-            ) : (
-              // ───── 음성 입력 모드 ─────
-              <>
-                <OuterCircle>
-                  <InnerCircle onClick={handleMicClick}>
-                    {isListening ? (
-                      <BsMicFill size={32} color="#fff" />
-                    ) : (
-                      <BsMic size={32} color="#fff" />
-                    )}
-                  </InnerCircle>
-                </OuterCircle>
-                <ToggleLink onClick={() => setUseTextInput(true)}>
-                  텍스트로 입력하기 &gt;
-                </ToggleLink>
-              </>
-            )}
-          </>
-        )}
-      </ContentWrapper>
-      <audio ref={audioRef} style={{ display: "none" }} />
-      <CustomAlert
-        open={alertOpen}
-        message={alertMsg}
-        onClose={() => setAlertOpen(false)}
-      />
-    </PageWrapper>
+          {!hasStarted ? (
+            <StartButton className="title3" onClick={handleStart}>
+              일기 시작
+            </StartButton>
+          ) : (
+            <Subtitle style={{ fontSize: subtitleFontSize }}>
+              {isLoading ? "로딩 중..." : chatMessage}
+            </Subtitle>
+          )}
+          {hasStarted && !isTTSPlaying && (
+            <>
+              {useTextInput ? (
+                // ───── 텍스트 입력 모드 ─────
+                <TextInputWrapper>
+                  <TextInput
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder="메시지를 입력하고 Enter"
+                  />
+                  <ToggleLink onClick={() => setUseTextInput(false)}>
+                    마이크로 입력하기
+                  </ToggleLink>
+                </TextInputWrapper>
+              ) : (
+                // ───── 음성 입력 모드 ─────
+                <>
+                  <OuterCircle>
+                    <InnerCircle onClick={handleMicClick}>
+                      {isListening ? (
+                        <BsMicFill size={32} color="#fff" />
+                      ) : (
+                        <BsMic size={32} color="#fff" />
+                      )}
+                    </InnerCircle>
+                  </OuterCircle>
+                  <ToggleLink onClick={() => setUseTextInput(true)}>
+                    텍스트로 입력하기 &gt;
+                  </ToggleLink>
+                </>
+              )}
+            </>
+          )}
+        </ContentWrapper>
+        <audio ref={audioRef} style={{ display: "none" }} />
+        <CustomAlert
+          open={alertOpen}
+          message={alertMsg}
+          onClose={() => setAlertOpen(false)}
+        />
+      </PageWrapper>
+    </>
   );
 };
 
 export default DailyDiary;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* 짙은 반투명 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
 
 const PageWrapper = styled.div`
   position: relative;

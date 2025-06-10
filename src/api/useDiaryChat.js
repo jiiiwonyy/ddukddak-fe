@@ -144,7 +144,7 @@ export const useDiaryChat = (startFunction, category) => {
       const data = response.data;
 
       if (data.diary) {
-        if (category === "diary") {
+        if (category === "daily") {
           // 2초(2000ms) 후에 이동
           setTimeout(() => {
             navigate("/modifydiary", {
