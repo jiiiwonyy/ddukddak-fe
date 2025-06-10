@@ -3,11 +3,7 @@ import Header from "../components/Header";
 import PageWrapper from "../components/PageWrapper";
 import styled from "styled-components";
 import MainButton from "../components/MainButton";
-import {
-  postDiary,
-  sendDailyDiaryToAI,
-  sendThemeDiaryToAI,
-} from "../api/diary"; // 등록용 함수만 사용
+import { postDiary, sendDailyDiaryToAI } from "../api/diary"; // 등록용 함수만 사용
 import { useNavigate, useLocation } from "react-router-dom";
 import { getLocalDateString } from "../api/time";
 
@@ -17,7 +13,6 @@ const DiaryModify = () => {
   const category = location.state?.category;
   const today = getLocalDateString();
   const [diaryDate] = useState(today);
-  const theme = location.state?.theme;
   const [title, setTitle] = useState(diary?.title || "");
   const [body, setBody] = useState(diary?.body || "");
 
@@ -40,11 +35,7 @@ const DiaryModify = () => {
         await sendDailyDiaryToAI(title, body);
         navigate("/retrospect");
       } else {
-        // 주제일기일 때 AI 서버 전송
-        await sendThemeDiaryToAI(title, body, theme);
         navigate("/home");
-        console.log(title, body, theme);
-
       }
       alert("일기 등록 성공");
     } catch (e) {

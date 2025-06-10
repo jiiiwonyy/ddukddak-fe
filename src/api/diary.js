@@ -47,6 +47,3 @@ export const sendDailyDiaryToAI = (title, body) => {
   return dailyInstance.post("/save-diary", { title, body });
 };
 
-export const sendThemeDiaryToAI = (title, body, theme) => {
-  return dailyInstance.post("/theme/save-diary", { title, body, theme });
-};
