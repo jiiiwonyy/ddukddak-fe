@@ -276,9 +276,9 @@ const TextInput = styled.input`
 `;
 
 const ToggleLink = styled.span`
-  margin-top: 8px;
-  font-size: 0.9rem;
-  color: #555;
-  cursor: pointer;
-  text-decoration: underline;
+  position: "fixed";
+  bottom: "10%";
+  left: "50%";
+  transform: "translateX(-50%)";
+  zindex: 999;
 `;
