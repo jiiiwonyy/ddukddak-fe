@@ -17,11 +17,21 @@ const DailyDiary = () => {
     audioRef,
     endDiary,
     chatCount,
+    sendMessage,
   } = useDiaryChat(startDailyDiary, "daily");
 
   const [hasStarted, setHasStarted] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
+  const [useTextInput, setUseTextInput] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter" && inputValue.trim()) {
+      sendMessage(inputValue.trim());
+      setInputValue("");
+    }
+  };
 
   const handleStart = async () => {
     setHasStarted(true);
@@ -68,15 +78,38 @@ const DailyDiary = () => {
           </Subtitle>
         )}
         {hasStarted && !isTTSPlaying && (
-          <OuterCircle>
-            <InnerCircle onClick={handleMicClick}>
-              {isListening ? (
-                <BsMicFill size={32} color="#fff" />
-              ) : (
-                <BsMic size={32} color="#fff" />
-              )}
-            </InnerCircle>
-          </OuterCircle>
+          <>
+            {useTextInput ? (
+              // ───── 텍스트 입력 모드 ─────
+              <TextInputWrapper>
+                <TextInput
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  placeholder="메시지를 입력하고 Enter"
+                />
+                <ToggleLink onClick={() => setUseTextInput(false)}>
+                  마이크로 입력하기
+                </ToggleLink>
+              </TextInputWrapper>
+            ) : (
+              // ───── 음성 입력 모드 ─────
+              <>
+                <OuterCircle>
+                  <InnerCircle onClick={handleMicClick}>
+                    {isListening ? (
+                      <BsMicFill size={32} color="#fff" />
+                    ) : (
+                      <BsMic size={32} color="#fff" />
+                    )}
+                  </InnerCircle>
+                </OuterCircle>
+                <ToggleLink onClick={() => setUseTextInput(true)}>
+                  텍스트로 입력하기 &gt;
+                </ToggleLink>
+              </>
+            )}
+          </>
         )}
       </ContentWrapper>
       <audio ref={audioRef} style={{ display: "none" }} />
@@ -223,4 +256,29 @@ const EndButton = styled.button`
   &:hover {
     background-color: #a9d1ff;
   }
+`;
+const TextInputWrapper = styled.div`
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TextInput = styled.input`
+  width: 100%;
+  padding: 12px;
+  border-radius: 1rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-top: 1rem;
+`;
+
+const ToggleLink = styled.span`
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+  text-decoration: underline;
 `;
