@@ -5,7 +5,7 @@ import { startDailyDiary } from "../api/diary";
 import { useDiaryChat } from "../api/useDiaryChat"; // Assuming this is the correct import path
 import CustomAlert from "../components/AlertModal";
 import { FiLogOut } from "react-icons/fi";
-import Spinner from "../components/spinner";
+import Spinner from "../components/Spinner";
 
 const DailyDiary = () => {
   const {
