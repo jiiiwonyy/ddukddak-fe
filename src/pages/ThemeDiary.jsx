@@ -5,6 +5,7 @@ import { startThemeDiary } from "../api/diary";
 import { useState, useMemo } from "react";
 import CustomAlert from "../components/AlertModal";
 import { FiLogOut } from "react-icons/fi";
+import Spinner from "../components/Spinner";
 
 const ThemeDiary = () => {
   const {
@@ -56,9 +57,9 @@ const ThemeDiary = () => {
   const subtitleFontSize = useMemo(() => {
     if (!chatMessage) return "1.3rem";
     const len = chatMessage.length;
-    if (len <= 30) return "1.7rem";
-    if (len <= 60) return "1.5rem";
-    if (len <= 80) return "1.3rem";
+    if (len <= 30) return "1.5rem";
+    if (len <= 60) return "1.3rem";
+    if (len <= 80) return "1.2rem";
     return "1.2rem"; // 그 이상 더 줄일 수도 있음
   }, [chatMessage]);
 

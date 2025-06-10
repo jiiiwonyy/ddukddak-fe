@@ -57,9 +57,9 @@ const DailyDiary = () => {
   const subtitleFontSize = useMemo(() => {
     if (!chatMessage) return "1.3rem";
     const len = chatMessage.length;
-    if (len <= 30) return "1.8rem";
-    if (len <= 55) return "1.5rem";
-    if (len <= 75) return "1.3rem";
+    if (len <= 30) return "1.5rem";
+    if (len <= 55) return "1.3rem";
+    if (len <= 75) return "1.2rem";
     return "1.2rem"; // 그 이상 더 줄일 수도 있음
   }, [chatMessage]);
 
