@@ -96,12 +96,16 @@ const DailyDiary = () => {
                 // ───── 텍스트 입력 모드 ─────
                 <TextInputWrapper>
                   <TextInput
+                    className="body3"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleInputKeyDown}
                     placeholder="메시지를 입력하고 Enter"
                   />
-                  <ToggleLink onClick={() => setUseTextInput(false)}>
+                  <ToggleLink
+                    className="body2"
+                    onClick={() => setUseTextInput(false)}
+                  >
                     마이크로 입력하기
                   </ToggleLink>
                 </TextInputWrapper>
@@ -117,7 +121,10 @@ const DailyDiary = () => {
                       )}
                     </InnerCircle>
                   </OuterCircle>
-                  <ToggleLink onClick={() => setUseTextInput(true)}>
+                  <ToggleLink
+                    className="body2"
+                    onClick={() => setUseTextInput(true)}
+                  >
                     텍스트로 입력하기 &gt;
                   </ToggleLink>
                 </>
@@ -286,7 +293,7 @@ const EndButton = styled.button`
 `;
 const TextInputWrapper = styled.div`
   position: relative;
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -296,7 +303,7 @@ const TextInputWrapper = styled.div`
 const TextInput = styled.input`
   width: 100%;
   padding: 12px;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   border: 1px solid #ccc;
   font-size: 1rem;
   margin-top: 1rem;
@@ -308,4 +315,9 @@ const ToggleLink = styled.span`
   left: "50%";
   transform: "translateX(-50%)";
   zindex: 999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
 `;

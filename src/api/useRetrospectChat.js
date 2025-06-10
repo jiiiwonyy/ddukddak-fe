@@ -377,5 +377,6 @@ export const useRetrospectChat = () => {
     hint,
     waitingRetry,
     retrospectResults,
+    sendAnswer,
   };
 };

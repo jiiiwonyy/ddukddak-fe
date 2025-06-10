@@ -17,24 +17,40 @@ const ThemeDiary = () => {
     audioRef,
     endDiary,
     chatCount,
+    sendMessage,
   } = useDiaryChat(startThemeDiary, "topic");
 
   const [hasStarted, setHasStarted] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");
+  const [useTextInput, setUseTextInput] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [isEnding, setIsEnding] = useState(false);
 
   const handleStart = async () => {
     setHasStarted(true);
     startConversation();
   };
 
-  const handleEndDiary = () => {
+  const handleEndDiary = async () => {
     if (chatCount < 5) {
       setAlertMsg("아직 대화 내용이 부족해요");
       setAlertOpen(true);
       return;
     }
-    endDiary();
+    setIsEnding(true);
+    try {
+      await endDiary();
+    } finally {
+      setIsEnding(false);
+    }
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter" && inputValue.trim()) {
+      sendMessage(inputValue.trim());
+      setInputValue("");
+    }
   };
 
   const subtitleFontSize = useMemo(() => {
@@ -47,48 +63,98 @@ const ThemeDiary = () => {
   }, [chatMessage]);
 
   return (
-    <PageWrapper>
-      <FixedBackground />
-      <Title>주제 일기</Title>
-      {hasStarted && (
-        <EndButton onClick={handleEndDiary}>
-          <FiLogOut size={24} />
-        </EndButton>
+    <>
+      {isEnding && (
+        <Overlay>
+          <Spinner />
+        </Overlay>
       )}
-      <ContentWrapper>
-        <CharacterImage src="/assets/images/themeCat.svg" alt="Character" />
-        {!hasStarted ? (
-          <StartButton className="title3" onClick={handleStart}>
-            일기 시작
-          </StartButton>
-        ) : (
-          <Subtitle style={{ fontSize: subtitleFontSize }}>
-            {isLoading ? "로딩 중..." : chatMessage}
-          </Subtitle>
+      <PageWrapper>
+        <FixedBackground />
+        <Title>주제 일기</Title>
+        {hasStarted && (
+          <EndButton onClick={handleEndDiary}>
+            <FiLogOut size={24} />
+          </EndButton>
         )}
-        {hasStarted && !isTTSPlaying && (
-          <OuterCircle>
-            <InnerCircle onClick={handleMicClick}>
-              {isListening ? (
-                <BsMicFill size={32} color="#fff" />
+        <ContentWrapper>
+          <CharacterImage src="/assets/images/themeCat.svg" alt="Character" />
+          {!hasStarted ? (
+            <StartButton className="title3" onClick={handleStart}>
+              일기 시작
+            </StartButton>
+          ) : (
+            <Subtitle style={{ fontSize: subtitleFontSize }}>
+              {isLoading ? "로딩 중..." : chatMessage}
+            </Subtitle>
+          )}
+          {hasStarted && !isTTSPlaying && (
+            <>
+              {useTextInput ? (
+                // ───── 텍스트 입력 모드 ─────
+                <TextInputWrapper>
+                  <TextInput
+                    className="body3"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={handleInputKeyDown}
+                    placeholder="메시지를 입력하고 Enter"
+                  />
+                  <ToggleLink
+                    className="body2"
+                    onClick={() => setUseTextInput(false)}
+                  >
+                    마이크로 입력하기
+                  </ToggleLink>
+                </TextInputWrapper>
               ) : (
-                <BsMic size={32} color="#fff" />
+                // ───── 음성 입력 모드 ─────
+                <>
+                  <OuterCircle>
+                    <InnerCircle onClick={handleMicClick}>
+                      {isListening ? (
+                        <BsMicFill size={32} color="#fff" />
+                      ) : (
+                        <BsMic size={32} color="#fff" />
+                      )}
+                    </InnerCircle>
+                  </OuterCircle>
+                  <ToggleLink
+                    className="body2"
+                    onClick={() => setUseTextInput(true)}
+                  >
+                    텍스트로 입력하기 &gt;
+                  </ToggleLink>
+                </>
               )}
-            </InnerCircle>
-          </OuterCircle>
-        )}
-      </ContentWrapper>
-      <audio ref={audioRef} style={{ display: "none" }} />
-      <CustomAlert
-        open={alertOpen}
-        message={alertMsg}
-        onClose={() => setAlertOpen(false)}
-      />
-    </PageWrapper>
+            </>
+          )}
+        </ContentWrapper>
+        <audio ref={audioRef} style={{ display: "none" }} />
+        <CustomAlert
+          open={alertOpen}
+          message={alertMsg}
+          onClose={() => setAlertOpen(false)}
+        />
+      </PageWrapper>
+    </>
   );
 };
 
 export default ThemeDiary;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6); /* 짙은 반투명 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
 
 const PageWrapper = styled.div`
   position: relative;
@@ -221,4 +287,35 @@ const EndButton = styled.button`
   &:hover {
     background-color: rgb(196, 148, 132);
   }
+`;
+
+const TextInputWrapper = styled.div`
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TextInput = styled.input`
+  width: 100%;
+  padding: 12px;
+  border-radius: 1rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-top: 1rem;
+`;
+
+const ToggleLink = styled.span`
+  position: "fixed";
+  bottom: "10%";
+  left: "50%";
+  transform: "translateX(-50%)";
+  zindex: 999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
 `;

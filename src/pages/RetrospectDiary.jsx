@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { BsMic, BsMicFill } from "react-icons/bs";
 import { useRetrospectChat } from "../api/useRetrospectChat";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const RetrospectDiary = () => {
   const {
@@ -13,7 +13,18 @@ const RetrospectDiary = () => {
     startSession,
     handleMicClick,
     isTTSPlaying,
+    sendAnswer,
   } = useRetrospectChat();
+
+  const [useTextInput, setUseTextInput] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter" && inputValue.trim()) {
+      sendAnswer(inputValue.trim());
+      setInputValue("");
+    }
+  };
 
   const subtitleFontSize = useMemo(() => {
     if (!subtitle) return "1.3rem";
@@ -50,15 +61,45 @@ const RetrospectDiary = () => {
             </Subtitle>
             {/* 마이크 버튼 */}
             {!isTTSPlaying && (
-              <OuterCircle>
-                <InnerCircle onClick={handleMicClick} $listening={isListening}>
-                  {isListening ? (
-                    <BsMicFill size={32} color="#fff" />
-                  ) : (
-                    <BsMic size={32} color="#fff" />
-                  )}
-                </InnerCircle>
-              </OuterCircle>
+              <>
+                {useTextInput ? (
+                  // ───── 텍스트 입력 모드 ─────
+                  <TextInputWrapper>
+                    <TextInput
+                      className="body3"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={handleInputKeyDown}
+                      placeholder="메시지를 입력하고 Enter"
+                    />
+                    <ToggleLink
+                      className="body2"
+                      onClick={() => setUseTextInput(false)}
+                    >
+                      마이크로 입력하기
+                    </ToggleLink>
+                  </TextInputWrapper>
+                ) : (
+                  // ───── 음성 입력 모드 ─────
+                  <>
+                    <OuterCircle>
+                      <InnerCircle onClick={handleMicClick}>
+                        {isListening ? (
+                          <BsMicFill size={32} color="#fff" />
+                        ) : (
+                          <BsMic size={32} color="#fff" />
+                        )}
+                      </InnerCircle>
+                    </OuterCircle>
+                    <ToggleLink
+                      className="body2"
+                      onClick={() => setUseTextInput(true)}
+                    >
+                      텍스트로 입력하기 &gt;
+                    </ToggleLink>
+                  </>
+                )}
+              </>
             )}
           </>
         )}
@@ -180,4 +221,35 @@ const StartButton = styled.button`
   border: none;
   cursor: pointer;
   color: white;
+`;
+
+const TextInputWrapper = styled.div`
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TextInput = styled.input`
+  width: 100%;
+  padding: 12px;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  margin-top: 1rem;
+`;
+
+const ToggleLink = styled.span`
+  position: "fixed";
+  bottom: "10%";
+  left: "50%";
+  transform: "translateX(-50%)";
+  zindex: 999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
 `;
