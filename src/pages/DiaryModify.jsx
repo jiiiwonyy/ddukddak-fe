@@ -17,7 +17,7 @@ const DiaryModify = () => {
   const category = location.state?.category;
   const today = getLocalDateString();
   const [diaryDate] = useState(today);
-
+  const theme = location.state?.theme;
   const [title, setTitle] = useState(diary?.title || "");
   const [body, setBody] = useState(diary?.body || "");
 
@@ -41,7 +41,7 @@ const DiaryModify = () => {
         navigate("/retrospect");
       } else {
         // 주제일기일 때 AI 서버 전송
-        await sendThemeDiaryToAI(title, body, "theme");
+        await sendThemeDiaryToAI(title, body, theme);
         navigate("/home");
       }
       alert("일기 등록 성공");
