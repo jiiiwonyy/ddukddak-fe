@@ -133,8 +133,10 @@ export const useDiaryChat = (startFunction, category) => {
     if (!message || !message.trim()) return;
 
     try {
-      const response = await dailyInstance.post("/ask", { message });
+      const endpoint = category === "topic" ? "/theme/ask" : "/ask";
+      const response = await dailyInstance.post(endpoint, { message });
       setChatCount((c) => c + 1);
+
       if (response.status !== 200) {
         throw new Error(
           `메시지 전송 서버 오류 (${response.status}): ${response.statusText}`
