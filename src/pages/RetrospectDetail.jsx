@@ -8,8 +8,8 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { getDiaryDetail } from "../api/diary"; // 반드시 실제 경로에 맞게 import!
 
 const CATEGORY_MAP = {
-  TIME_ORIENTATION: "시간 지남력",
-  PLACE_ORIENTATION: "장소 지남력",
+  TIME: "시간 지남력",
+  PLACE: "장소 지남력",
   MEMORY: "기억력",
 };
 
