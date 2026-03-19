@@ -1,12 +1,190 @@
-# React + Vite
+# 🐦 나비야 (NABIYA) - 인지기능 훈련을 위한 AI 회상요법 일기 작성 서비스
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **"회상치료 기반 일기 작성을 AI 챗봇과 음성 인터랙션으로 구현한 웹 서비스"**  
+> 🔗 **GitHub**: https://github.com/jiiiwonyy/ddukddak-fe  
+> 💡 **개발 기간**: 2025.03 ~ 2025.06 (약 4개월)  
+> 👨‍💻 **개발 인원**: FE 1 / BE 1 / AI 1
 
-Currently, two official plugins are available:
+<br/>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📝 1. 프로젝트 기획 배경 (Motivation)
 
-## Expanding the ESLint configuration
+기존 회상치료는 인지 기능 향상에 효과적이지만,  
+👉 **센터 방문, 상담자 필요, 회상 매체 준비 등으로 접근성이 낮은 한계**가 있었습니다.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+또한 일반적인 일기 서비스는  
+👉 단순 텍스트 입력 중심으로 **사용자 참여도가 낮고 지속 사용이 어려운 문제**가 있었습니다.
+
+이에  
+✔ AI 챗봇과 음성 인터랙션을 활용하여  
+✔ 언제 어디서든 접근 가능한 회상 일기 서비스를 기획하였습니다.
+
+<br/>
+
+## 🛠 2. 사용 기술 및 선정 배경 (Tech Stack)
+
+### Frontend
+
+- **React & TypeScript**  
+  → 컴포넌트 기반 UI 설계 및 안정적인 상태 관리
+
+- **Vite**  
+  → 빠른 개발 환경 구축
+
+- **PWA**  
+  → 모바일 환경에서도 앱처럼 사용 가능하도록 지원
+
+- **Cypress**  
+  → 사용자 시나리오 기반 E2E 테스트 자동화
+
+---
+
+### AI / 음성 처리
+
+- **OpenAI GPT API (GPT-4.1-mini 기반), TTS API 활용**  
+  → 회상 질문 생성 및 대화형 챗봇 API 연결
+  → 텍스트 응답을 음성으로 변환하여 사용자 경험 강화
+
+<br/>
+
+## ✨ 3. 핵심 기능 (Key Features)
+
+### 서비스 구조
+<img width="100%" alt="image" src="https://github.com/user-attachments/assets/910dfddf-8d07-44da-b7b5-5e57571e7f06" />
+
+
+### 🗣️ 일상 대화 기반 일기 작성
+
+| 일상 대화 인터페이스 |
+|---------|
+| <img src="https://github.com/user-attachments/assets/e1a5524e-6653-4265-9380-16d1eb9a22c1" width="100%"/> |
+
+- 🎤 음성 기반 대화 + 채팅 입력 지원
+- 🧠 시간 · 장소 · 기억 · 감정을 중심으로 대화 유도
+- 🔗 과거 경험과 현재 경험을 연결하는 질문 제공
+- 📌 하루를 구조화할 수 있는 트리거 중심 인터랙션 설계
+- 💬 자연스러운 대화 흐름을 통해 일기 작성 완료
+
+---
+
+### 📆 일주일 회상 (회상치료 기반 기능)
+
+| 일주일 회상 인터페이스 |
+|---------|
+| <img src="https://github.com/user-attachments/assets/0c606131-06f7-496a-b506-bfcd268c6652" width="100%"/> |
+
+- 📖 기존 일기 데이터를 기반으로 주간 회상 진행
+- 🧠 시간지남력 · 장소지남력 · 기억력 중심 질문 구성
+- 🔍 사용자 답변과 기존 기록 간 유사도 기반 판단
+- 💡 기억이 어려운 경우 힌트 제공
+- 🎯 총 3회의 질문 기회를 통해 단계적 회상 유도
+
+---
+
+### 🧩 주제 일기
+
+| 주제 일기 인터페이스 |
+|---------|
+| <img src="https://github.com/user-attachments/assets/0000fee5-5bcd-438e-bc3a-e2f958220866" width="100%"/> |
+
+- 🎯 학창시절 · 가족 · 여가 등 9가지 테마 제공
+- 🧠 세부 주제를 통해 자연스럽게 기억 회상 유도
+- 📊 사용자 활동 데이터를 기반으로 주제 우선순위 제공
+- ✍️ 구조화된 질문을 통해 깊이 있는 일기 작성 지원
+
+---
+
+### 일기 기록 조회
+
+| 나의 일기장 인터페이스 |
+|---------|
+| <img src="https://github.com/user-attachments/assets/4b392a4f-97fb-4d42-a544-25da39e6cc8a"  width="100%"/> |
+
+- 작성한 일기 조회
+  - 일상 일기, 주제 일기, 회상 내역 및 점수
+- 이번 달과 지난 달 회상 평균 점수 조회
+
+<br/>
+
+## 🎯 4. 트러블 슈팅 및 문제 해결 (Trouble Shooting)
+
+### 💡 1) 음성 기반 UX에서 비동기 흐름 제어 문제
+
+- **문제 발생**  
+  TTS 음성 재생과 사용자 입력이 동시에 이루어지면서  
+  👉 대화 흐름이 꼬이거나 UX가 끊기는 문제 발생
+
+- **해결 방법**
+  - TTS 응답을 Blob으로 변환하여 브라우저에서 재생
+  - `audio.onended` 이벤트 기반으로 다음 단계 진행
+  - 사용자 입력 타이밍을 제어하여 대화 흐름 안정화
+
+- **결과**
+  - 음성 기반 인터랙션 흐름 안정화
+  - 사용자 경험 개선
+
+---
+
+### 💡 2) 사용자 참여도 저하 문제 (텍스트 중심 UX)
+
+- **문제 발생**  
+  단순 텍스트 입력 방식은 사용자 몰입도가 낮고  
+  지속적인 참여도가 낮음
+
+- **해결 방법**
+  - AI API를 활용한 대화형 챗봇 UI 설계
+  - 회상 주제 기반 질문 흐름 구성
+  - 음성 인터랙션을 통한 자연스러운 UX 제공
+
+- **결과**
+  - 대화를 하는 기분을 주면서 사용자 인터랙션 증가
+  - 대화 기반 일기 자동 생성을 통해 일기 작성에 대한 사용자 부담 감소
+
+---
+
+### 💡 3) 기능 안정성 확보 필요
+
+- **문제 발생**  
+  사용자 흐름이 복잡하여 기능 오류 발생 가능성 존재
+
+- **해결 방법**
+  - Cypress 기반 E2E 테스트 도입
+  - 주요 사용자 시나리오 자동화 테스트 구성
+
+- **결과**
+  - 반복 테스트 자동화
+  - 기능 안정성 향상
+
+<br/>
+
+## ⚙️ 5. 프로젝트 로컬 실행 방법 (How to Run)
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/jiiiwonyy/ddukddak-fe.git
+cd ddukddak-fe
+
+# 2. 실행
+npm install
+npm run dev
+```
+
+<br/>
+
+## 📂 6. 프로젝트 구조 (Folder Structure)
+```bash
+src/
+├── components/
+├── pages/
+├── hooks/
+├── api/
+└── utils/
+```
+<br/>
+
+## 💡 7. 배운 점 (What I Learned)
+
+- 음성 인터페이스 기반 UX 설계 경험
+- 비동기 이벤트 흐름 제어 (audio lifecycle)
+- AI API를 활용한 서비스 설계 경험
+- Cypress를 활용한 테스트 자동화 경험
